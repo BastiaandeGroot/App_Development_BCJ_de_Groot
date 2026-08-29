@@ -1,3 +1,10 @@
 node_modules/
+.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
 *.report.json
 report.json
+.env
+.env*.local
+.DS_Store

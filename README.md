@@ -8,7 +8,23 @@ De checks zijn een implementatie van `docs/dataqualitychecks.md` (de "meetlat").
 De uitkomst is een oordeel per product en feed-breed, met de labels
 **Laag / Middel / Hoog / Sterk**, telkens met toelichting en bewijs.
 
-## Snel draaien
+## Web-UI (Next.js)
+
+Een webinterface bovenop de engine: upload of plak een feed en zie het rapport
+op beide niveaus — feed-samenvatting én een doorklikbare productlijst. De analyse
+draait volledig in de browser (geen upload naar een server).
+
+```bash
+npm install
+npm run dev      # ontwikkelserver op http://localhost:3000
+# of productie:
+npm run build && npm run start
+```
+
+Look & feel: Shopify (rustig, veel witruimte, groene accenten) + eBay
+(marktplaats-productlijst met thumbnails en status-labels).
+
+## CLI (zonder build)
 
 Vereist Node 22+ (draait TypeScript direct, geen build-stap nodig).
 
