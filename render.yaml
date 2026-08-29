@@ -1,0 +1,20 @@
+# Render Blueprint voor de Product Data Readiness Scan (Next.js 14).
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Web Service met Node-runtime. De analyse draait client-side, dus er zijn
+# geen secrets/omgevingsvariabelen nodig.
+services:
+  - type: web
+    name: readiness-scan
+    runtime: node
+    plan: free # 'free' valt na inactiviteit in slaap (koude start). Kies 'starter' voor altijd-aan.
+    region: frankfurt # Dichtst bij NL; pas aan indien gewenst.
+    # Geen 'branch' hier: Render gebruikt de branch waaraan je de Blueprint koppelt.
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      # Next 14 vereist Node >= 18.17; we pinnen een moderne LTS.
+      - key: NODE_VERSION
+        value: "20"
