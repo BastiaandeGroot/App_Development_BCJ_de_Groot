@@ -126,6 +126,7 @@ export interface FieldFillRate {
 }
 
 export interface FeedReport {
+  reportVersion: string; // versie van de rapportagestandaard (docs/reportingstandard.md)
   source: string;
   generatedAt: string;
   productCount: number;

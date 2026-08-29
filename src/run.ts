@@ -34,6 +34,7 @@ function printReport(r: FeedReport, maxProducts: number): void {
   console.log(line);
   console.log('  AGENTIC COMMERCE — PRODUCTDATA READINESS');
   console.log(line);
+  console.log(`Rapportversie: ${r.reportVersion}`);
   console.log(`Bron:        ${r.source}`);
   console.log(`Producten:   ${r.productCount}`);
   console.log(`Oordeel:     ${r.overall.label}  (score ${r.overall.score}/100)`);

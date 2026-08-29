@@ -10,6 +10,16 @@ import { evaluateConstraints } from './constraints.ts';
 // Deze waarden en de drempels hieronder zijn de belangrijkste "afstelknoppen".
 const PENALTY: Record<Finding['severity'], number> = { error: 9, warn: 5, info: 1, ok: 0 };
 
+// Vaste sorteervolgorde voor bevindingen (rapportagestandaard §6):
+// eerst op ernst (error → warn → info → ok), daarbinnen op code.
+const SEVERITY_ORDER: Record<Finding['severity'], number> = { error: 0, warn: 1, info: 2, ok: 3 };
+
+export function sortFindings(findings: Finding[]): Finding[] {
+  return [...findings].sort(
+    (a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity] || a.code.localeCompare(b.code),
+  );
+}
+
 export function scoreFindings(findings: Finding[]): number {
   let score = 100;
   for (const f of findings) score -= PENALTY[f.severity];
@@ -33,8 +43,8 @@ export function buildProductReport(p: NormalizedProduct): ProductReport {
     title: p.title,
     score,
     label: labelForScore(score, hasCriticalError),
-    findings,
-    taxonomy: checkTaxonomy(p),
+    findings: sortFindings(findings),
+    taxonomy: sortFindings(checkTaxonomy(p)),
     constraintCoverage: evaluateConstraints(p),
   };
 }

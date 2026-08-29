@@ -59,6 +59,10 @@ De engine meet tegen twee meetlatten:
 - **Meetlat 2 — `docs/taxonomyandconstraints.md`**: taxonomie (Google Product
   Category) en constraint coverage (kan een agent klantvragen beantwoorden?).
 
+De **output** volgt `docs/reportingstandard.md`: een vast contract (drie niveaus,
+vaste labels, `reportVersion`, deterministische volgorde en afronding) zodat elke
+scan op dezelfde manier rapporteert.
+
 **Wel (v1, rule-based):**
 - Magento 2 / Channable JSON-adapter.
 - Basisvelden, identifier-validatie (GTIN-checksum, dubbele/ongeldige GTIN's, SKU's).

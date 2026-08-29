@@ -9,17 +9,28 @@ import type {
   QualityLabel,
 } from './types.ts';
 import { BASE_FIELDS } from './checks/product.ts';
-import { buildProductReport, labelForScore } from './score.ts';
+import { buildProductReport, labelForScore, sortFindings } from './score.ts';
 import { isValidGtin } from './normalize.ts';
 import { googleCategoryOf } from './checks/taxonomy.ts';
 import { aggregateConstraints } from './constraints.ts';
+
+// Versie van de rapportagestandaard (docs/reportingstandard.md).
+export const REPORT_VERSION = '1.0';
+
+// Stabiele productvolgorde op id: numeriek waar mogelijk, anders alfabetisch.
+function compareIds(a: string, b: string): number {
+  const na = Number(a);
+  const nb = Number(b);
+  if (Number.isFinite(na) && Number.isFinite(nb) && na !== nb) return na - nb;
+  return a.localeCompare(b);
+}
 
 function computeFillRates(products: NormalizedProduct[]): FieldFillRate[] {
   const total = products.length;
   return BASE_FIELDS.map((f) => {
     const filled = products.filter((p) => f.present(p)).length;
     return { field: f.label, filled, total, pct: total ? Math.round((filled / total) * 100) : 0 };
-  }).sort((a, b) => a.pct - b.pct);
+  }).sort((a, b) => a.pct - b.pct || a.field.localeCompare(b.field));
 }
 
 // Feed-brede bevindingen die je per product niet ziet (bv. dubbele identifiers).
@@ -130,12 +141,17 @@ export function buildFeedReport(source: string, products: NormalizedProduct[]): 
 
   const avg = total ? Math.round(productReports.reduce((s, r) => s + r.score, 0) / total) : 0;
   const fillRates = computeFillRates(products);
-  const feedFindings = computeFeedFindings(products);
+  const feedFindings = sortFindings(computeFeedFindings(products));
   const overallLabel = labelForScore(avg, feedFindings.some((f) => f.severity === 'error'));
-  const taxonomy = computeTaxonomyFeed(products);
+  const taxonomyRaw = computeTaxonomyFeed(products);
+  const taxonomy = { ...taxonomyRaw, findings: sortFindings(taxonomyRaw.findings) };
   const constraintCoverage = aggregateConstraints(productReports.map((r) => r.constraintCoverage));
 
+  // Stabiele productvolgorde op id (rapportagestandaard §6).
+  productReports.sort((a, b) => compareIds(a.id, b.id));
+
   return {
+    reportVersion: REPORT_VERSION,
     source,
     generatedAt: new Date().toISOString(),
     productCount: total,
