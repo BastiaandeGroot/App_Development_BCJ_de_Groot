@@ -54,16 +54,29 @@ Een nieuwe bron toevoegen = één nieuwe adapter in `src/adapters/` schrijven di
 
 ## Wat er nu wél en (nog) niet is
 
+De engine meet tegen twee meetlatten:
+- **Meetlat 1 — `docs/dataqualitychecks.md`**: volledigheid, identifiers, machineleesbaarheid.
+- **Meetlat 2 — `docs/taxonomyandconstraints.md`**: taxonomie (Google Product
+  Category) en constraint coverage (kan een agent klantvragen beantwoorden?).
+
 **Wel (v1, rule-based):**
 - Magento 2 / Channable JSON-adapter.
 - Basisvelden, identifier-validatie (GTIN-checksum, dubbele/ongeldige GTIN's, SKU's).
 - Attribuut-/vulgraadanalyse feed-breed.
 - Machineleesbaarheid: signalen voor "te veel in vrije tekst" en varianten-in-tekst.
-- Scoring naar de 4 labels met toelichting en bewijs.
+- Taxonomiecheck: aanwezigheid Google Product Category, specificiteit, meerdere
+  verticals, eigen categoriepad zonder mapping.
+- Constraint coverage: universele + policy + (indicatieve) categorie-constraints,
+  beantwoordbaarheid per constraint (Ja/Deels/Nee/Indicatief) met faalreden,
+  per product én feed-breed.
+- Alles op twee niveaus: per product én feed-breed, met de 4 labels + bewijs.
 
 **Nog niet (volgende stappen):**
+- Verbetersuggesties per bevinding ("Verbeteractie") — bewust geparkeerd; komt
+  in een aparte stap met input van de opdrachtgever.
 - Adapters voor CSV, XML en generieke PIM-export.
-- AI/Claude-laag voor het subjectieve oordeel (is een beschrijving rijk genoeg?).
+- AI/Claude-laag: echte klantvragen genereren, semantische categoriejuistheid,
+  subjectief kwaliteitsoordeel.
 - Feed-site-consistentie (vergelijk feed met de live productpagina).
 - Web-UI (Next.js) bovenop deze engine.
 

@@ -82,12 +82,40 @@ export interface Finding {
 
 export type QualityLabel = 'Laag' | 'Middel' | 'Hoog' | 'Sterk';
 
+// --- Meetlat 2: taxonomie & constraint coverage ---------------------------
+
+// Beantwoordbaarheid van een constraint uit de beschikbare data.
+export type Answerability = 'Ja' | 'Deels' | 'Nee' | 'Indicatief';
+
+export interface ConstraintResult {
+  id: string;
+  label: string; // de constraint / klantvraag
+  group: 'universeel' | 'policy' | 'categorie';
+  intent?: string; // bv. "vergelijken", "compatibiliteit controleren"
+  answerable: Answerability;
+  reason?: string; // faalreden bij Deels/Nee/Indicatief
+  evidence?: string;
+  indicative?: boolean; // constraint is indicatief gegenereerd, niet uit echte bron
+}
+
+export interface ConstraintCoverage {
+  results: ConstraintResult[];
+  counts: Record<Answerability, number>;
+  total: number;
+  answerableRatio: string; // bv. "10/18"
+  score: number; // 0-100, gewogen
+  label: QualityLabel;
+  topGaps: string[]; // belangrijkste onbeantwoordbare constraints
+}
+
 export interface ProductReport {
   id: string;
   title?: string;
   score: number; // 0-100
   label: QualityLabel;
   findings: Finding[];
+  taxonomy: Finding[]; // bevindingen tegen de Google-taxonomiemeetlat
+  constraintCoverage: ConstraintCoverage;
 }
 
 export interface FieldFillRate {
@@ -108,6 +136,11 @@ export interface FeedReport {
   };
   fillRates: FieldFillRate[];
   feedFindings: Finding[]; // feed-brede bevindingen (bv. dubbele GTIN's)
+  taxonomy: {
+    findings: Finding[]; // feed-brede taxonomiebevindingen
+    googleCategoryFillPct: number; // % producten met Google Product Category
+  };
+  constraintCoverage: ConstraintCoverage; // feed-breed geaggregeerd
   labelDistribution: Record<QualityLabel, number>;
   products: ProductReport[];
 }

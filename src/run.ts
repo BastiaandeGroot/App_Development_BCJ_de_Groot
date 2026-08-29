@@ -45,20 +45,34 @@ function printReport(r: FeedReport, maxProducts: number): void {
   }
 
   if (r.feedFindings.length) {
-    console.log(`\nFeed-brede bevindingen:`);
+    console.log(`\nFeed-brede bevindingen (volledigheid & identifiers):`);
     for (const f of r.feedFindings) {
       console.log(`  [${ICON[f.severity]}] ${f.message}${f.evidence ? `  (${f.evidence})` : ''}`);
     }
   }
 
+  // Meetlat 2A: taxonomie.
+  console.log(`\nTaxonomie (Google Product Category bij ${r.taxonomy.googleCategoryFillPct}% van de producten):`);
+  for (const f of r.taxonomy.findings) {
+    console.log(`  [${ICON[f.severity]}] ${f.message}${f.evidence ? `  (${f.evidence})` : ''}`);
+  }
+  if (r.taxonomy.findings.length === 0) console.log('  [✓] alle producten hebben een Google-categorie');
+
+  // Meetlat 2B: constraint coverage (feed-breed).
+  const cc = r.constraintCoverage;
+  console.log(`\nConstraint coverage (kan een agent klantvragen beantwoorden?): ${cc.label}  (score ${cc.score}/100)`);
+  console.log(`  Ja ${cc.counts.Ja} · Deels ${cc.counts.Deels} · Nee ${cc.counts.Nee} · Indicatief ${cc.counts.Indicatief}  (van ${cc.total} constraints)`);
+  if (cc.topGaps.length) console.log(`  Grootste gaten: ${cc.topGaps.join('; ')}`);
+
   console.log(`\nVoorbeelden (eerste ${Math.min(maxProducts, r.products.length)} producten):`);
   for (const p of r.products.slice(0, maxProducts)) {
     console.log(`\n  • ${p.id}  ${p.title ?? ''}`);
-    console.log(`    → ${p.label} (score ${p.score}/100)`);
-    for (const f of p.findings) {
+    console.log(`    → volledigheid: ${p.label} (${p.score}/100) | constraint coverage: ${p.constraintCoverage.label} (${p.constraintCoverage.score}/100, beantwoordbaar ${p.constraintCoverage.answerableRatio})`);
+    const all = [...p.findings, ...p.taxonomy];
+    for (const f of all) {
       console.log(`      [${ICON[f.severity]}] ${f.message}${f.evidence ? `  (${f.evidence})` : ''}`);
     }
-    if (p.findings.length === 0) console.log('      geen bevindingen');
+    if (all.length === 0) console.log('      geen bevindingen');
   }
   console.log('\n' + line);
 }

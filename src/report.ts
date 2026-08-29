@@ -11,6 +11,8 @@ import type {
 import { BASE_FIELDS } from './checks/product.ts';
 import { buildProductReport, labelForScore } from './score.ts';
 import { isValidGtin } from './normalize.ts';
+import { googleCategoryOf } from './checks/taxonomy.ts';
+import { aggregateConstraints } from './constraints.ts';
 
 function computeFillRates(products: NormalizedProduct[]): FieldFillRate[] {
   const total = products.length;
@@ -98,6 +100,27 @@ function summarize(
   return parts.join(' ');
 }
 
+// Feed-brede taxonomiebevindingen (meetlat 2, deel A).
+function computeTaxonomyFeed(products: NormalizedProduct[]): {
+  findings: Finding[];
+  googleCategoryFillPct: number;
+} {
+  const total = products.length;
+  const withGoogle = products.filter((p) => !!googleCategoryOf(p)).length;
+  const pct = total ? Math.round((withGoogle / total) * 100) : 0;
+  const findings: Finding[] = [];
+  if (pct < 100) {
+    findings.push({
+      code: 'feed.taxonomy.google_category',
+      severity: pct === 0 ? 'error' : 'warn',
+      field: 'google_product_category',
+      message: `Google Product Category is bij ${pct}% van de producten aanwezig; zonder mapping naar de officiële taxonomie is filteren/vergelijken door externe kanalen en agents onbetrouwbaar`,
+      evidence: `${withGoogle}/${total}`,
+    });
+  }
+  return { findings, googleCategoryFillPct: pct };
+}
+
 export function buildFeedReport(source: string, products: NormalizedProduct[]): FeedReport {
   const productReports: ProductReport[] = products.map(buildProductReport);
   const total = products.length;
@@ -109,6 +132,8 @@ export function buildFeedReport(source: string, products: NormalizedProduct[]): 
   const fillRates = computeFillRates(products);
   const feedFindings = computeFeedFindings(products);
   const overallLabel = labelForScore(avg, feedFindings.some((f) => f.severity === 'error'));
+  const taxonomy = computeTaxonomyFeed(products);
+  const constraintCoverage = aggregateConstraints(productReports.map((r) => r.constraintCoverage));
 
   return {
     source,
@@ -117,6 +142,8 @@ export function buildFeedReport(source: string, products: NormalizedProduct[]): 
     overall: { label: overallLabel, score: avg, summary: summarize(overallLabel, fillRates, dist, total) },
     fillRates,
     feedFindings,
+    taxonomy,
+    constraintCoverage,
     labelDistribution: dist,
     products: productReports,
   };

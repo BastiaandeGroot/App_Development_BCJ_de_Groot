@@ -3,6 +3,8 @@
 
 import type { Finding, ProductReport, QualityLabel, NormalizedProduct } from './types.ts';
 import { runProductChecks } from './checks/product.ts';
+import { checkTaxonomy } from './checks/taxonomy.ts';
+import { evaluateConstraints } from './constraints.ts';
 
 // Strafpunten per ernst. Kritieke ontbrekende velden (error) wegen het zwaarst.
 // Deze waarden en de drempels hieronder zijn de belangrijkste "afstelknoppen".
@@ -32,5 +34,7 @@ export function buildProductReport(p: NormalizedProduct): ProductReport {
     score,
     label: labelForScore(score, hasCriticalError),
     findings,
+    taxonomy: checkTaxonomy(p),
+    constraintCoverage: evaluateConstraints(p),
   };
 }
