@@ -13,6 +13,8 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [pasteOpen, setPasteOpen] = useState(false);
   const [pasteText, setPasteText] = useState('');
+  const [dragOver, setDragOver] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
 
   const analyze = useCallback((text: string) => {
     setBusy(true);
@@ -41,11 +43,21 @@ export default function Home() {
   }, []);
 
   const onFile = useCallback((file: File) => {
+    setFileName(file.name);
+    setBusy(true);
+    setError(null);
     const reader = new FileReader();
     reader.onload = () => analyze(String(reader.result));
-    reader.onerror = () => setError('Kon het bestand niet lezen.');
+    reader.onerror = () => { setError('Kon het bestand niet lezen.'); setBusy(false); };
     reader.readAsText(file);
   }, [analyze]);
+
+  const onDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) onFile(file);
+  }, [onFile]);
 
   const loadSample = useCallback(async () => {
     setBusy(true);
@@ -80,14 +92,25 @@ export default function Home() {
           <div className="mt-8 rounded-xl border border-line bg-white p-6 shadow-card">
             <label
               htmlFor="file"
-              className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-line px-6 py-10 text-center transition hover:border-brand hover:bg-brand-soft/40"
+              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={onDrop}
+              className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed px-6 py-10 text-center transition ${
+                dragOver ? 'border-brand bg-brand-soft/60' : 'border-line hover:border-brand hover:bg-brand-soft/40'
+              }`}
             >
               <UploadIcon />
-              <span className="mt-3 text-sm font-medium text-ink">Sleep je feed hierheen of klik om te kiezen</span>
+              <span className="mt-3 text-sm font-medium text-ink">
+                {fileName ? fileName : 'Sleep je feed hierheen of klik om te kiezen'}
+              </span>
               <span className="mt-1 text-xs text-subtle">JSON-productfeed (Magento / Channable)</span>
               <input
-                id="file" type="file" accept="application/json,.json" className="hidden"
-                onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])}
+                id="file" type="file" accept="application/json,.json,application/octet-stream" className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) onFile(file);
+                  e.target.value = ''; // reset zodat hetzelfde bestand opnieuw gekozen kan worden
+                }}
               />
             </label>
 
