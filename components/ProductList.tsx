@@ -114,7 +114,7 @@ function ProductRow({
         </div>
         <div className="hidden shrink-0 items-center gap-2 sm:flex">
           <Pill label={p.label} score={p.score} title="Volledigheid" />
-          <Pill label={cc.label} score={cc.score} title="Coverage" />
+          <Pill label={cc.label} score={cc.score} title="Klantvragen" />
         </div>
         <span className={`ml-1 shrink-0 text-subtle transition ${open ? 'rotate-180' : ''}`}>▾</span>
       </button>
@@ -138,10 +138,10 @@ function ProductRow({
             )}
           </div>
 
-          {/* Constraint coverage */}
+          {/* Beantwoordbare klantvragen (constraint coverage) */}
           <div>
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-subtle">
-              Constraint coverage — {cc.label} ({cc.answerableRatio})
+              Beantwoordbare klantvragen — {cc.label} ({cc.answerableRatio})
             </h3>
             <div className="mb-2 flex flex-wrap gap-1.5">
               {(['Ja', 'Deels', 'Nee', 'Indicatief'] as const).map((a) => (

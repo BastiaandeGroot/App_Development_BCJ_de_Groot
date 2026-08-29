@@ -48,18 +48,18 @@ export default function Dashboard({
               <p className="font-semibold text-ink">Volledigheid — is de data compleet & machineleesbaar?</p>
               <p className="mt-1">Kijkt of de basisvelden gevuld zijn (titel, prijs, merk, EAN, afbeelding, levertijd, retour, garantie…), of de identifiers kloppen (geldige GTIN, geen duplicaten) en of info in nette velden staat i.p.v. alleen vrije tekst.</p>
               <p className="mt-1"><span className="font-medium">Score:</span> start op 100, met aftrek per ontbrekend/onjuist veld — kritieke velden wegen zwaarder dan kleine.</p>
-              <p className="mt-1 text-subtle"><span className="font-medium">Verschil met coverage:</span> dit meet of de data er nét in staat, niet of een agent er vragen mee kan beantwoorden.</p>
+              <p className="mt-1 text-subtle"><span className="font-medium">Verschil met beantwoordbare klantvragen:</span> dit meet of de data er nét in staat, niet of een agent er vragen mee kan beantwoorden.</p>
             </>
           }
         />
         <Tile
-          title="Constraint coverage" value={`${cc.score}`} suffix="/100" label={cc.label} sub={`beantwoordbaar ${cc.answerableRatio}`}
+          title="Beantwoordbare klantvragen" value={`${cc.score}`} suffix="/100" label={cc.label} sub={`${cc.answerableRatio} vragen beantwoordbaar`}
           info={
             <>
-              <p className="font-semibold text-ink">Constraint coverage — kan een agent klantvragen beantwoorden?</p>
-              <p className="mt-1">Een <span className="font-medium">constraint</span> is één voorwaarde uit een klantvraag (bv. levertijd, merk, maat). Per constraint bepalen we of de data die kan beantwoorden:</p>
+              <p className="font-semibold text-ink">Beantwoordbare klantvragen — kan een agent hier iets mee?</p>
+              <p className="mt-1">We toetsen typische klantvragen (bv. "wat is de levertijd?", "van welk merk is dit?", "welke maat?"). Per vraag bepalen we of de data die kan beantwoorden:</p>
               <p className="mt-1">Ja = 1 · Deels = 0,5 · Indicatief = 0,25 · Nee = 0</p>
-              <p className="mt-1"><span className="font-medium">Score</span> = som van de gewichten ÷ aantal constraints × 100. Bijvoorbeeld 8× Ja, 2× Deels, 7× Nee van 17 → 9,0 ÷ 17 × 100 = 53.</p>
+              <p className="mt-1"><span className="font-medium">Score</span> = som van de punten ÷ aantal vragen × 100. Bijvoorbeeld 8× Ja, 2× Deels, 7× Nee van 17 → 9,0 ÷ 17 × 100 = 53.</p>
               <p className="mt-1 text-subtle"><span className="font-medium">Verschil met volledigheid:</span> dit meet of je er echt iets mee kunt (vragen beantwoorden), niet alleen of de velden gevuld zijn.</p>
             </>
           }
@@ -115,7 +115,7 @@ export default function Dashboard({
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
         <FindingsCard title="Volledigheid & identifiers" findings={report.feedFindings} empty="Geen feed-brede problemen." />
         <FindingsCard title="Taxonomie" findings={report.taxonomy.findings} empty="Alle producten hebben een Google-categorie." />
-        <Card title="Constraint coverage — grootste gaten">
+        <Card title="Klantvragen — grootste gaten">
           {cc.topGaps.length === 0 ? (
             <p className="text-sm text-subtle">Alle constraints zijn beantwoordbaar.</p>
           ) : (
