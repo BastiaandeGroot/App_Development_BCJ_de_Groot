@@ -40,10 +40,38 @@ export default function Dashboard({
 
       {/* Stat-tiles */}
       <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile title="Volledigheid" value={`${report.overall.score}`} suffix="/100" label={report.overall.label} />
-        <Tile title="Constraint coverage" value={`${cc.score}`} suffix="/100" label={cc.label} sub={`beantwoordbaar ${cc.answerableRatio}`} />
-        <Tile title="Google-categorie" value={`${report.taxonomy.googleCategoryFillPct}`} suffix="%" sub="van de producten gemapt" />
-        <Tile title="Producten" value={report.productCount.toLocaleString('nl-NL')} sub="volledig geanalyseerd" />
+        <Tile
+          title="Volledigheid" value={`${report.overall.score}`} suffix="/100" label={report.overall.label}
+          sub="staat de data er netjes in?"
+          info={
+            <>
+              <p className="font-semibold text-ink">Volledigheid — is de data compleet & machineleesbaar?</p>
+              <p className="mt-1">Kijkt of de basisvelden gevuld zijn (titel, prijs, merk, EAN, afbeelding, levertijd, retour, garantie…), of de identifiers kloppen (geldige GTIN, geen duplicaten) en of info in nette velden staat i.p.v. alleen vrije tekst.</p>
+              <p className="mt-1"><span className="font-medium">Score:</span> start op 100, met aftrek per ontbrekend/onjuist veld — kritieke velden wegen zwaarder dan kleine.</p>
+              <p className="mt-1 text-subtle"><span className="font-medium">Verschil met coverage:</span> dit meet of de data er nét in staat, niet of een agent er vragen mee kan beantwoorden.</p>
+            </>
+          }
+        />
+        <Tile
+          title="Constraint coverage" value={`${cc.score}`} suffix="/100" label={cc.label} sub={`beantwoordbaar ${cc.answerableRatio}`}
+          info={
+            <>
+              <p className="font-semibold text-ink">Constraint coverage — kan een agent klantvragen beantwoorden?</p>
+              <p className="mt-1">Een <span className="font-medium">constraint</span> is één voorwaarde uit een klantvraag (bv. levertijd, merk, maat). Per constraint bepalen we of de data die kan beantwoorden:</p>
+              <p className="mt-1">Ja = 1 · Deels = 0,5 · Indicatief = 0,25 · Nee = 0</p>
+              <p className="mt-1"><span className="font-medium">Score</span> = som van de gewichten ÷ aantal constraints × 100. Bijvoorbeeld 8× Ja, 2× Deels, 7× Nee van 17 → 9,0 ÷ 17 × 100 = 53.</p>
+              <p className="mt-1 text-subtle"><span className="font-medium">Verschil met volledigheid:</span> dit meet of je er echt iets mee kunt (vragen beantwoorden), niet alleen of de velden gevuld zijn.</p>
+            </>
+          }
+        />
+        <Tile
+          title="Google-categorie" value={`${report.taxonomy.googleCategoryFillPct}`} suffix="%" sub="van de producten gemapt"
+          info={<p>Aandeel producten met een waarde voor <span className="font-medium">google_product_category</span> (de officiële Google-taxonomie). Zonder mapping kunnen externe kanalen en agents producten lastig indelen en vergelijken.</p>}
+        />
+        <Tile
+          title="Producten" value={report.productCount.toLocaleString('nl-NL')} sub="volledig geanalyseerd"
+          info={<p>Aantal producten in de feed. Elk product krijgt een eigen analyse (zie de lijst onderaan); niets wordt samengevat weggelaten.</p>}
+        />
       </div>
 
       {/* Verdeling + vulgraad */}
@@ -119,10 +147,13 @@ function LabelBadge({ label, score, big }: { label: QualityLabel; score: number;
   );
 }
 
-function Tile({ title, value, suffix, sub, label }: { title: string; value: string; suffix?: string; sub?: string; label?: QualityLabel }) {
+function Tile({ title, value, suffix, sub, label, info }: { title: string; value: string; suffix?: string; sub?: string; label?: QualityLabel; info?: React.ReactNode }) {
   return (
     <div className="rounded-xl border border-line bg-white p-4 shadow-card">
-      <p className="text-xs font-medium uppercase tracking-wide text-subtle">{title}</p>
+      <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-subtle">
+        {title}
+        {info && <InfoDot>{info}</InfoDot>}
+      </p>
       <p className="mt-1 flex items-baseline gap-1">
         <span className="text-2xl font-semibold text-ink">{value}</span>
         {suffix && <span className="text-sm text-subtle">{suffix}</span>}
@@ -130,6 +161,26 @@ function Tile({ title, value, suffix, sub, label }: { title: string; value: stri
       {label && <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${LABEL_STYLE[label]}`}>{label}</span>}
       {sub && <p className="mt-1 text-xs text-subtle">{sub}</p>}
     </div>
+  );
+}
+
+// "i"-icoontje met hover- én focus-tooltip (toegankelijk met toetsenbord).
+function InfoDot({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="group relative inline-flex align-middle normal-case">
+      <button
+        type="button" aria-label="Uitleg"
+        className="grid h-4 w-4 place-items-center rounded-full border border-line text-[10px] font-semibold leading-none text-subtle transition hover:border-brand hover:text-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+      >
+        i
+      </button>
+      <span
+        role="tooltip"
+        className="pointer-events-none absolute left-1/2 top-6 z-30 hidden w-72 max-w-[80vw] -translate-x-1/2 rounded-lg border border-line bg-white p-3 text-left text-xs font-normal leading-relaxed tracking-normal text-subtle shadow-card group-hover:block group-focus-within:block"
+      >
+        {children}
+      </span>
+    </span>
   );
 }
 
