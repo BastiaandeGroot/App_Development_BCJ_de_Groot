@@ -1,0 +1,10 @@
+{
+  "name": "agentic-readiness-checker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Checkt of productdata (feed/PIM) volledig en machineleesbaar genoeg is voor agentic commerce.",
+  "scripts": {
+    "check": "node src/run.ts"
+  }
+}
