@@ -21,6 +21,8 @@ export default function Dashboard({
   display: Map<string, DisplayInfo>;
 }) {
   const cc = report.constraintCoverage;
+  // Eigen (interne) categorie-vulgraad, los van de Google-mapping.
+  const ownCatPct = report.fillRates.find((f) => f.field === 'categoriepad')?.pct ?? 0;
   return (
     <main className="mx-auto max-w-6xl px-4 py-6">
       {/* Kop */}
@@ -64,9 +66,17 @@ export default function Dashboard({
             </>
           }
         />
-        <Tile
-          title="Google-categorie" value={`${report.taxonomy.googleCategoryFillPct}`} suffix="%" sub="van de producten gemapt"
-          info={<p>Aandeel producten met een waarde voor <span className="font-medium">google_product_category</span> (de officiële Google-taxonomie). Zonder mapping kunnen externe kanalen en agents producten lastig indelen en vergelijken.</p>}
+        <CategoryTile
+          ownPct={ownCatPct}
+          googlePct={report.taxonomy.googleCategoryFillPct}
+          info={
+            <>
+              <p className="font-semibold text-ink">Categorie — eigen indeling vs. Google-mapping</p>
+              <p className="mt-1"><span className="font-medium">Eigen categorie</span> = jouw interne indeling (bv. "Gordijnstoffen &gt; Gesloten"). Die is meestal gevuld.</p>
+              <p className="mt-1"><span className="font-medium">Google-mapping</span> = het aparte, gestandaardiseerde veld <span className="font-medium">google_product_category</span> uit de officiële Google-taxonomie (bv. "Home &amp; Garden &gt; Linens &amp; Bedding &gt; …"). Dit is wat externe kanalen en AI-agents begrijpen.</p>
+              <p className="mt-1 text-subtle">Je kunt dus wél een categorie hebben terwijl de Google-mapping ontbreekt — dat zijn twee verschillende velden.</p>
+            </>
+          }
         />
         <Tile
           title="Producten" value={report.productCount.toLocaleString('nl-NL')} sub="volledig geanalyseerd"
@@ -181,6 +191,36 @@ function InfoDot({ children }: { children: React.ReactNode }) {
         {children}
       </span>
     </span>
+  );
+}
+
+// Aparte tegel die eigen categorie én Google-mapping naast elkaar toont.
+function CategoryTile({ ownPct, googlePct, info }: { ownPct: number; googlePct: number; info?: React.ReactNode }) {
+  return (
+    <div className="rounded-xl border border-line bg-white p-4 shadow-card">
+      <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-subtle">
+        Categorie {info && <InfoDot>{info}</InfoDot>}
+      </p>
+      <div className="mt-2 space-y-2">
+        <MiniStat label="Eigen categorie" pct={ownPct} />
+        <MiniStat label="Google-mapping" pct={googlePct} />
+      </div>
+    </div>
+  );
+}
+
+function MiniStat({ label, pct }: { label: string; pct: number }) {
+  const color = pct >= 80 ? 'bg-sterk' : pct < 40 ? 'bg-laag' : 'bg-middel';
+  return (
+    <div>
+      <div className="flex items-baseline justify-between">
+        <span className="text-xs text-subtle">{label}</span>
+        <span className="text-sm font-semibold tabular-nums text-ink">{pct}%</span>
+      </div>
+      <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-surface">
+        <div className={`h-full ${color}`} style={{ width: `${pct}%` }} />
+      </div>
+    </div>
   );
 }
 
