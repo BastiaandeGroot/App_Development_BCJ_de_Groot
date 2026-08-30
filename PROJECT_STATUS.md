@@ -31,9 +31,23 @@ Laag / Middel / Hoog / Sterk en bewijs. Taal van de app: Nederlands.
    feed-dashboard + doorklikbare productlijst. Look & feel: Shopify + eBay.
    "i"-tooltips met uitleg per score. Analyse draait in de browser (geen upload).
 
-## Alleen JSON nu
-De enige adapter is Magento 2 / Channable JSON (`src/adapters/channable.ts`).
-Voorbeeldfeed: `fixtures/sample_feed.json` en `public/sample_feed.json`.
+## Intake-aanpak (belangrijk)
+- **Feed = primair.** De Channable/Google-Shopping **CSV** is de analysebron (dat is wat
+  de agent/het kanaal ziet). Adapter: `src/adapters/channableFeed.ts` + `src/csv.ts`.
+- **Masterdata = optioneel.** Magento/PIM **JSON**-export. Adapter: `src/adapters/channable.ts`.
+- **Auto-detectie** (`src/intake.ts`): CSV → feed, JSON → master.
+- **Beide aangeleverd → gecombineerd** (`src/merge.ts`) op SKU (EAN ter verificatie);
+  de audit draait op de feed, de master dient om gaten te duiden.
+- Voorbeeldbestanden: `fixtures/sample_feed.csv` (+ `public/sample_feed.csv`) en
+  `fixtures/sample_feed.json`.
+- CLI: `node src/run.ts <feed.csv> [master.json] [--combined comb.json]`.
+
+### Nog te bouwen op deze lijn (afgesproken model)
+- Detectie van **schijn-volledigheid** in de feed (placeholder/default zoals merk =
+  winkelnaam; te brede Google-categorie / bulk-toewijzing).
+- **Feed-vs-master-divergentie** als bevindingen: per ontbrekend veld "aanvulbaar uit
+  master" vs. "echte lacune", plus een **masterdata-kwaliteitssignaal**.
+- Taxonomie-audit-checks C1–C11 (aanwezig/geldig/specifiek/spreiding).
 
 ## Bewuste keuzes / afspraken
 - **Alleen constateren wat mis is** — nog géén verbetersuggesties.

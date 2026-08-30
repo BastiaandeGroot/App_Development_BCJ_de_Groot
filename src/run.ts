@@ -1,24 +1,26 @@
-// CLI-runner: lees een feed-bestand, voer de analyse uit en print een rapport.
+// CLI-runner: lees één of twee bronbestanden, combineer ze en analyseer de feed.
 //
 // Gebruik:
-//   node src/run.ts [pad-naar-feed.json] [--json uit.json] [--max N]
+//   node src/run.ts <feed.csv> [master.json] [--json uit.json] [--combined comb.json] [--max N]
 //
-// Standaard draait het op fixtures/sample_feed.json.
+// De feed (Channable CSV) is primair. Een optionele master (Magento/PIM JSON)
+// wordt bijgekoppeld op SKU/EAN. Zonder argumenten draait het op de voorbeeldfeed.
 
 import { readFileSync, writeFileSync } from 'node:fs';
-import { adaptChannableFeed } from './adapters/channable.ts';
+import { ingest } from './intake.ts';
+import { combineSources } from './merge.ts';
 import { buildFeedReport } from './report.ts';
 import type { FeedReport, Finding } from './types.ts';
 
 function parseArgs(argv: string[]) {
-  const args = { input: 'fixtures/sample_feed.json', json: '', max: 5 };
-  const rest: string[] = [];
+  const args = { inputs: [] as string[], json: '', combined: '', max: 5 };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--json') args.json = argv[++i];
+    else if (argv[i] === '--combined') args.combined = argv[++i];
     else if (argv[i] === '--max') args.max = Number(argv[++i]);
-    else rest.push(argv[i]);
+    else args.inputs.push(argv[i]);
   }
-  if (rest[0]) args.input = rest[0];
+  if (args.inputs.length === 0) args.inputs = ['fixtures/sample_feed.json'];
   return args;
 }
 
@@ -80,26 +82,47 @@ function printReport(r: FeedReport, maxProducts: number): void {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  let json: unknown;
-  try {
-    json = JSON.parse(readFileSync(args.input, 'utf8'));
-  } catch (e) {
-    console.error(`Kan feed niet lezen/parsen: ${args.input}\n${(e as Error).message}`);
+
+  // Lees en detecteer elk bestand (feed of master).
+  let feed = null as ReturnType<typeof ingest> | null;
+  let master = null as ReturnType<typeof ingest> | null;
+  for (const path of args.inputs) {
+    let intake;
+    try {
+      intake = ingest(path, readFileSync(path, 'utf8'));
+    } catch (e) {
+      console.error(`Kan bestand niet lezen/parsen: ${path}\n${(e as Error).message}`);
+      process.exit(1);
+    }
+    if (intake.kind === 'feed') feed = intake;
+    else master = intake;
+    console.log(`Ingelezen: ${path} → ${intake.kind === 'feed' ? 'FEED' : 'MASTERDATA'} (${intake.products.length} producten)`);
+  }
+
+  const merged = combineSources(feed, master);
+  if (merged.primary.length === 0) {
+    console.error('Geen producten gevonden.');
     process.exit(1);
   }
 
-  const { source, products } = adaptChannableFeed(json);
-  if (products.length === 0) {
-    console.error('Geen producten gevonden in de feed. Is dit een Channable/Magento-JSON met een "products"-array?');
-    process.exit(1);
+  // Combineersamenvatting tonen als beide bronnen aanwezig zijn.
+  if (feed && master) {
+    const s = merged.summary;
+    console.log('\n── Bronnen gecombineerd (koppeling op SKU/EAN) ──');
+    console.log(`  gekoppeld: ${s.matched} · alleen feed: ${s.onlyFeed} · alleen master: ${s.onlyMaster} · EAN-conflicten: ${s.eanConflicts}`);
   }
 
-  const report = buildFeedReport(source, products);
+  const source = feed?.source ?? master?.source ?? 'onbekend';
+  const report = buildFeedReport(`${source} [${merged.primaryKind}]`, merged.primary);
   printReport(report, args.max);
 
   if (args.json) {
     writeFileSync(args.json, JSON.stringify(report, null, 2));
     console.log(`Volledig JSON-rapport geschreven naar: ${args.json}`);
+  }
+  if (args.combined) {
+    writeFileSync(args.combined, JSON.stringify(merged.combined, null, 2));
+    console.log(`Gecombineerd databestand geschreven naar: ${args.combined}`);
   }
 }
 
