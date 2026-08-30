@@ -30,7 +30,7 @@ Laag / Middel / Hoog / Sterk en bewijs. Taal van de app: Nederlands.
    - Volledigheid & machineleesbaarheid — `docs/dataqualitychecks.md`
    - Taxonomie (Google Product Category) + "Beantwoordbare klantvragen"
      (intern: constraint coverage) — `docs/taxonomyandconstraints.md`
-3. **Rapportagestandaard** (`docs/reportingstandard.md`, v1.0): vast output-contract —
+3. **Rapportagestandaard** (`docs/reportingstandard.md`, v1.1): vast output-contract —
    drie niveaus, vaste labels, `reportVersion`, deterministische volgorde/afronding,
    altijd alle producten, JSON canoniek + web + PDF als weergaven.
 4. **Web-UI** (Next.js, `app/` + `components/`): upload/plak/voorbeeldfeed →
@@ -88,7 +88,7 @@ Laag / Middel / Hoog / Sterk en bewijs. Taal van de app: Nederlands.
 1. Verbetersuggesties per bevinding (met input van de opdrachtgever).
 2. Categoriespecifieke klantvragen via een Claude/AI-laag.
 3. Feed-site-consistentie (feed vs. live productpagina).
-4. CSV/XML/PIM-adapters (nu alleen JSON).
+4. XML/PIM-adapters (Channable-CSV en Magento-JSON worden al ondersteund).
 5. PDF-export (staat al in de rapportagestandaard, zit nog niet in de UI).
 6. Subjectief kwaliteitsoordeel door Claude (is een beschrijving rijk genoeg?).
 7. Klein/cosmetisch: fallback voor productafbeeldingen die shops blokkeren.
