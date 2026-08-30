@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useCallback } from 'react';
 import { ingest } from '@/src/intake.ts';
 import { combineSources } from '@/src/merge.ts';
@@ -189,11 +190,16 @@ function TopBar({ onReset }: { onReset?: () => void }) {
           <span className="font-semibold text-ink">Readiness Scan</span>
           <span className="ml-1 hidden rounded-full bg-surface px-2 py-0.5 text-xs text-subtle sm:inline">productdata → agentic commerce</span>
         </div>
-        {onReset && (
-          <button onClick={onReset} className="rounded-lg border border-line px-3 py-1.5 text-sm font-medium text-ink transition hover:bg-surface">
-            Nieuwe scan
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          <Link href="/wat-we-controleren" className="rounded-lg px-3 py-1.5 text-sm font-medium text-subtle transition hover:bg-surface hover:text-ink">
+            Wat we controleren
+          </Link>
+          {onReset && (
+            <button onClick={onReset} className="rounded-lg border border-line px-3 py-1.5 text-sm font-medium text-ink transition hover:bg-surface">
+              Nieuwe scan
+            </button>
+          )}
+        </div>
       </div>
     </header>
   );
