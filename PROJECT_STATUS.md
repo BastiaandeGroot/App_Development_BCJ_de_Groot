@@ -60,7 +60,14 @@ Laag / Middel / Hoog / Sterk en bewijs. Taal van de app: Nederlands.
   vertaalt ID's naar hun pad (bv. 47 = …Textiles > Fabric).
 - C7 is verfijnd: concentratie op één diepe, geldige node = passend voor een
   gespecialiseerde webshop (info), niet automatisch "bulk-toewijzing".
+- C6 (consistentie per interne categorie → zelfde Google-categorie) en C10
+  (versiebewustzijn: getoetst tegen versie 2021-09-21) toegevoegd.
 - CLI leest het bestand uit `public/`; de UI fetcht het (gecachet).
+
+### Nog te doen (taxonomie)
+- Volledige C10: toetsen tegen de *actuele* Google-versie (vereist het nieuwste
+  taxonomiebestand + een verversmechanisme).
+- C8 (semantische steekproef) — hoort bij de latere AI-laag.
 
 ## Bewuste keuzes / afspraken
 - **Alleen constateren wat mis is** — nog géén verbetersuggesties.

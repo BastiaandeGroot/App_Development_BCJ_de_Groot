@@ -118,6 +118,33 @@ export function auditTaxonomy(products: NormalizedProduct[], index?: TaxonomyInd
     }
   }
 
+  // C6 — consistentie per interne categorie: zelfde eigen categorie → zelfde Google-categorie?
+  const byInternal = new Map<string, Set<string>>();
+  for (const p of products) {
+    const g = googleCategoryOf(p);
+    const internal = p.mainCategoryPath ?? p.categories[0]?.path;
+    if (!g || !internal) continue;
+    if (!byInternal.has(internal)) byInternal.set(internal, new Set());
+    byInternal.get(internal)!.add(g);
+  }
+  const inconsistent = [...byInternal.entries()].filter(([, s]) => s.size > 1);
+  if (inconsistent.length > 0) {
+    const [exInternal, exSet] = inconsistent[0];
+    findings.push({
+      code: 'tax.C6.consistency', severity: 'warn', field: 'google_product_category',
+      message: `${inconsistent.length} eigen categorie(ën) mappen naar méér dan één Google-categorie; de mapping hoort per interne categorie consistent te zijn (T7)`,
+      evidence: `bv. "${exInternal}" → ${[...exSet].join(', ')}`,
+    });
+  }
+
+  // C10 — versiebewustzijn (volledige versiecheck vereist het actuele taxonomiebestand).
+  if (index && withCat > 0) {
+    findings.push({
+      code: 'tax.C10.version', severity: 'info', field: 'google_product_category',
+      message: `Getoetst tegen Google-taxonomieversie ${index.version}. Controleer of dit de actuele versie is en de versie die de webshop gebruikt (C10); Google hernoemt/verwijdert periodiek categorieën.`,
+    });
+  }
+
   // C11 — eigen categoriestructuur (product_type).
   const withType = products.filter((p) => p.categories.length > 0).length;
   const productTypeFillPct = n ? Math.round((withType / n) * 100) : 0;
