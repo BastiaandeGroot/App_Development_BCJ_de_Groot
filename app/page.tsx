@@ -104,69 +104,75 @@ export default function Home() {
   const reset = () => { setReport(null); setCombineInfo(null); setFileNames([]); setError(null); };
 
   return (
-    <div className="min-h-screen">
+    <div>
       <TopBar onReset={report ? reset : undefined} />
 
       {!report ? (
-        <main className="mx-auto max-w-3xl px-4 py-14">
+        <main className="mx-auto max-w-2xl px-6 py-16">
           <div className="text-center">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-3 py-1 text-xs font-medium text-brand-dark">
-              <span className="h-1.5 w-1.5 rounded-full bg-brand" /> Agentic commerce readiness
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-3 py-1 text-xs font-medium tracking-label text-brand-dark">
+              <span className="h-1.5 w-1.5 rounded-full bg-brand" /> AGENTIC COMMERCE READINESS
             </span>
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+            <h1 className="mx-auto mt-5 max-w-xl text-4xl font-semibold leading-tight tracking-tight text-ink">
               Is jouw productdata klaar voor AI-agents?
             </h1>
-            <p className="mx-auto mt-3 max-w-xl text-subtle">
-              Upload je productfeed (Channable / Google Shopping) en zie direct — per product én over de
-              hele catalogus — of de data volledig en machineleesbaar genoeg is voor agentic commerce.
+            <p className="mx-auto mt-4 max-w-lg text-[15px] leading-relaxed text-subtle">
+              Upload je productfeed en zie direct — per product én over de hele catalogus —
+              of je data volledig en machineleesbaar genoeg is voor agentic commerce.
             </p>
           </div>
 
-          <div className="mt-8 rounded-xl border border-line bg-white p-6 shadow-card">
+          <div className="mt-10 rounded-2xl border border-line bg-white p-6 shadow-card sm:p-7">
             <label
               htmlFor="file"
               onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
               onDragLeave={() => setDragOver(false)}
               onDrop={onDrop}
-              className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed px-6 py-10 text-center transition ${
+              className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 py-12 text-center transition ${
                 dragOver ? 'border-brand bg-brand-soft/60' : 'border-line hover:border-brand hover:bg-brand-soft/40'
               }`}
             >
-              <UploadIcon />
-              <span className="mt-3 text-sm font-medium text-ink">
-                {fileNames.length ? fileNames.join(' + ') : 'Sleep je feed hierheen of klik om te kiezen'}
+              <span className="grid h-12 w-12 place-items-center rounded-full bg-brand-soft">
+                <UploadIcon />
               </span>
-              <span className="mt-1 text-xs text-subtle">Feed: CSV (Channable / Google Shopping)</span>
+              <span className="mt-4 text-sm font-medium text-ink">
+                {fileNames.length ? fileNames.join('  +  ') : 'Sleep je feed hierheen of klik om te kiezen'}
+              </span>
+              <span className="mt-1 text-xs text-subtle">CSV-productfeed (Channable / Google Shopping)</span>
               <input
                 id="file" type="file" accept=".csv,.json,text/csv,application/json,application/octet-stream" multiple className="hidden"
                 onChange={(e) => { readAndAnalyze(Array.from(e.target.files || [])); e.target.value = ''; }}
               />
             </label>
 
-            <p className="mt-3 rounded-lg bg-surface px-3 py-2 text-center text-xs text-subtle">
-              Optioneel: voeg óók je <span className="font-medium text-ink">Magento/PIM-export (JSON)</span> toe —
-              sleep beide bestanden tegelijk. De feed wordt geanalyseerd en de master gebruikt om gaten te duiden.
+            <p className="mt-4 flex items-start gap-2 rounded-xl bg-surface px-3.5 py-2.5 text-xs leading-relaxed text-subtle">
+              <span className="mt-px text-subtle">＋</span>
+              <span>Optioneel: sleep óók je <span className="font-medium text-ink">Magento/PIM-export (JSON)</span> mee. De feed wordt geanalyseerd; de master gebruiken we om gaten te duiden.</span>
             </p>
 
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-3 text-sm">
-              <button onClick={loadSample} className="rounded-lg bg-brand px-4 py-2 font-medium text-white transition hover:bg-brand-hover">
-                Probeer met voorbeeldfeed
-              </button>
-            </div>
+            <button
+              onClick={loadSample}
+              className="mt-4 w-full rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow-card transition hover:bg-brand-hover"
+            >
+              Probeer met voorbeeldfeed
+            </button>
 
             {busy && <p className="mt-4 text-center text-sm text-subtle">Bezig met analyseren…</p>}
-            {error && <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-center text-sm text-laag ring-1 ring-red-200">{error}</p>}
+            {error && <p className="mt-4 rounded-xl bg-red-50 px-3 py-2 text-center text-sm text-laag ring-1 ring-red-200">{error}</p>}
           </div>
 
-          <p className="mt-6 text-center text-xs text-subtle">
-            De analyse draait volledig in je browser. Er wordt geen data geüpload.
-          </p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-subtle">
+            <Feature>Per product én catalogus</Feature>
+            <Feature>Draait privé in je browser</Feature>
+            <Feature>Resultaat in seconden</Feature>
+          </div>
         </main>
       ) : (
         <>
           {combineInfo && (
-            <div className="mx-auto max-w-6xl px-4 pt-4">
-              <div className="rounded-xl border border-brand/30 bg-brand-soft/50 px-4 py-3 text-sm text-brand-dark">
+            <div className="mx-auto max-w-content px-6 pt-5">
+              <div className="flex items-center gap-2 rounded-xl border border-brand/25 bg-brand-soft/60 px-4 py-3 text-sm text-brand-dark">
+                <span className="text-brand">⇄</span>
                 <span className="font-medium">Twee bronnen gecombineerd</span> — {combineInfo.matched} producten gekoppeld op SKU/EAN
                 {combineInfo.onlyFeed > 0 && ` · ${combineInfo.onlyFeed} alleen in feed`}
                 {combineInfo.onlyMaster > 0 && ` · ${combineInfo.onlyMaster} alleen in master`}
@@ -183,31 +189,41 @@ export default function Home() {
 
 function TopBar({ onReset }: { onReset?: () => void }) {
   return (
-    <header className="sticky top-0 z-10 border-b border-line bg-white/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-2">
-          <span className="grid h-7 w-7 place-items-center rounded-lg bg-brand text-sm font-bold text-white">R</span>
-          <span className="font-semibold text-ink">Readiness Scan</span>
-          <span className="ml-1 hidden rounded-full bg-surface px-2 py-0.5 text-xs text-subtle sm:inline">productdata → agentic commerce</span>
-        </div>
-        <div className="flex items-center gap-2">
+    <header className="sticky top-0 z-20 border-b border-line bg-white/80 backdrop-blur-md">
+      <div className="mx-auto flex h-14 max-w-content items-center justify-between px-6">
+        <Link href="/" className="flex items-center gap-2.5">
+          <span className="grid h-7 w-7 place-items-center rounded-lg bg-brand text-sm font-bold text-white shadow-card">R</span>
+          <span className="text-[15px] font-semibold tracking-tight text-ink">Readiness Scan</span>
+        </Link>
+        <nav className="flex items-center gap-1.5">
           <Link href="/wat-we-controleren" className="rounded-lg px-3 py-1.5 text-sm font-medium text-subtle transition hover:bg-surface hover:text-ink">
             Wat we controleren
           </Link>
           {onReset && (
-            <button onClick={onReset} className="rounded-lg border border-line px-3 py-1.5 text-sm font-medium text-ink transition hover:bg-surface">
+            <button onClick={onReset} className="rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium text-ink shadow-card transition hover:bg-surface">
               Nieuwe scan
             </button>
           )}
-        </div>
+        </nav>
       </div>
     </header>
   );
 }
 
+function Feature({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#008060" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20 6 9 17l-5-5" />
+      </svg>
+      {children}
+    </span>
+  );
+}
+
 function UploadIcon() {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#008060" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#008060" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 16V4m0 0L7 9m5-5 5 5" />
       <path d="M4 17v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2" />
     </svg>

@@ -8,20 +8,20 @@ export const metadata: Metadata = {
 
 export default function WatWeControleren() {
   return (
-    <div className="min-h-screen">
-      <header className="sticky top-0 z-10 border-b border-line bg-white/90 backdrop-blur">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="grid h-7 w-7 place-items-center rounded-lg bg-brand text-sm font-bold text-white">R</span>
-            <span className="font-semibold text-ink">Readiness Scan</span>
+    <div>
+      <header className="sticky top-0 z-20 border-b border-line bg-white/80 backdrop-blur-md">
+        <div className="mx-auto flex h-14 max-w-content items-center justify-between px-6">
+          <Link href="/" className="flex items-center gap-2.5">
+            <span className="grid h-7 w-7 place-items-center rounded-lg bg-brand text-sm font-bold text-white shadow-card">R</span>
+            <span className="text-[15px] font-semibold tracking-tight text-ink">Readiness Scan</span>
           </Link>
-          <Link href="/" className="rounded-lg bg-brand px-3 py-1.5 text-sm font-medium text-white transition hover:bg-brand-hover">
+          <Link href="/" className="rounded-lg bg-brand px-3.5 py-1.5 text-sm font-semibold text-white shadow-card transition hover:bg-brand-hover">
             Start een scan
           </Link>
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl px-4 py-10">
+      <main className="mx-auto max-w-3xl px-6 py-14">
         <div className="text-center">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-3 py-1 text-xs font-medium text-brand-dark">
             <span className="h-1.5 w-1.5 rounded-full bg-brand" /> Uitleg

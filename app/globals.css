@@ -6,13 +6,25 @@
   color-scheme: light;
 }
 
-body {
-  background: #f1f2f4;
-  color: #1a1a1a;
-  -webkit-font-smoothing: antialiased;
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
-/* Subtiele scrollbar voor de productlijst. */
+body {
+  background: #f6f6f7;
+  color: #1a1a1a;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+
+/* Tabelcijfers netjes uitgelijnd. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Subtiele scrollbar. */
 .scroll-thin::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -20,5 +32,12 @@ body {
 .scroll-thin::-webkit-scrollbar-thumb {
   background: #d3d5d8;
   border-radius: 8px;
-  border: 2px solid #f1f2f4;
+  border: 2px solid #f6f6f7;
+}
+.scroll-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::selection {
+  background: #cdeadf;
 }

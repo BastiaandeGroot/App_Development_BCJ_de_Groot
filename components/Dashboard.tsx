@@ -24,24 +24,24 @@ export default function Dashboard({
   // Eigen (interne) categorie-vulgraad, los van de Google-mapping.
   const ownCatPct = report.fillRates.find((f) => f.field === 'categoriepad')?.pct ?? 0;
   return (
-    <main className="mx-auto max-w-6xl px-4 py-6">
+    <main className="mx-auto max-w-content px-6 py-8">
       {/* Kop */}
-      <div className="rounded-xl border border-line bg-white p-5 shadow-card">
+      <div className="rounded-2xl border border-line bg-white p-6 shadow-card">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-lg font-semibold text-ink">Readiness-rapport</h1>
-            <p className="mt-0.5 text-sm text-subtle">
+            <h1 className="text-xl font-semibold tracking-tight text-ink">Readiness-rapport</h1>
+            <p className="mt-1 text-sm text-subtle">
               Bron: <span className="text-ink">{report.source}</span> · {report.productCount.toLocaleString('nl-NL')} producten ·
               rapportversie {report.reportVersion}
             </p>
           </div>
           <LabelBadge label={report.overall.label} score={report.overall.score} big />
         </div>
-        <p className="mt-3 text-sm text-subtle">{report.overall.summary}</p>
+        <p className="mt-4 border-t border-line pt-4 text-sm leading-relaxed text-subtle">{report.overall.summary}</p>
       </div>
 
       {/* Stat-tiles */}
-      <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mt-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Tile
           title="Volledigheid" value={`${report.overall.score}`} suffix="/100" label={report.overall.label}
           sub="staat de data er netjes in?"
@@ -85,21 +85,21 @@ export default function Dashboard({
       </div>
 
       {/* Verdeling + vulgraad */}
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+      <div className="mt-5 grid gap-5 lg:grid-cols-2">
         <Card title="Verdeling per label">
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {LABELS.map((l) => {
               const n = report.labelDistribution[l];
               const pct = report.productCount ? Math.round((n / report.productCount) * 100) : 0;
               return (
                 <div key={l} className="flex items-center gap-3 text-sm">
-                  <span className="flex w-16 items-center gap-1.5">
+                  <span className="flex w-16 shrink-0 items-center gap-1.5 text-ink">
                     <span className={`h-2 w-2 rounded-full ${LABEL_DOT[l]}`} /> {l}
                   </span>
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface">
-                    <div className={`h-full ${LABEL_DOT[l]}`} style={{ width: `${pct}%` }} />
+                    <div className={`h-full rounded-full ${LABEL_DOT[l]}`} style={{ width: `${pct}%` }} />
                   </div>
-                  <span className="w-16 text-right tabular-nums text-subtle">{n} · {pct}%</span>
+                  <span className="tnum w-20 shrink-0 whitespace-nowrap text-right text-subtle">{n.toLocaleString('nl-NL')} · {pct}%</span>
                 </div>
               );
             })}
@@ -107,14 +107,14 @@ export default function Dashboard({
         </Card>
 
         <Card title="Vulgraad basisvelden">
-          <div className="scroll-thin max-h-64 space-y-1.5 overflow-y-auto pr-1">
+          <div className="scroll-thin max-h-64 space-y-2 overflow-y-auto pr-1">
             {report.fillRates.map((f) => (
               <div key={f.field} className="flex items-center gap-3 text-sm">
                 <span className="w-32 shrink-0 truncate text-subtle" title={f.field}>{f.field}</span>
                 <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface">
-                  <div className={`h-full ${f.pct < 40 ? 'bg-laag' : f.pct < 80 ? 'bg-middel' : 'bg-sterk'}`} style={{ width: `${f.pct}%` }} />
+                  <div className={`h-full rounded-full ${f.pct < 40 ? 'bg-laag' : f.pct < 80 ? 'bg-middel' : 'bg-sterk'}`} style={{ width: `${f.pct}%` }} />
                 </div>
-                <span className="w-10 text-right tabular-nums text-subtle">{f.pct}%</span>
+                <span className="tnum w-11 shrink-0 text-right text-subtle">{f.pct}%</span>
               </div>
             ))}
           </div>
@@ -122,7 +122,7 @@ export default function Dashboard({
       </div>
 
       {/* Bevindingen feed-breed */}
-      <div className="mt-4 grid gap-4 lg:grid-cols-3">
+      <div className="mt-5 grid gap-5 lg:grid-cols-3">
         <FindingsCard title="Volledigheid & identifiers" findings={report.feedFindings} empty="Geen feed-brede problemen." />
         <FindingsCard title="Taxonomie-audit" findings={report.taxonomyAudit.findings} empty="Geen taxonomie-problemen." />
         <Card title="Klantvragen — grootste gaten">
@@ -142,15 +142,15 @@ export default function Dashboard({
 
       {/* Masterdata-kwaliteit (alleen bij aangeleverde masterdata) */}
       {report.masterQuality && (
-        <div className="mt-4">
+        <div className="mt-5">
           <Card title="Masterdata-kwaliteit (bron achter de feed)">
-            <div className="mb-3 flex flex-wrap items-center gap-3">
+            <div className="mb-4 flex flex-wrap items-center gap-3">
               <LabelBadge label={report.masterQuality.label} score={report.masterQuality.score} />
               <span className="text-sm text-subtle">
                 Hoeveel van de feed-volledigheid komt écht uit de bron, versus is opgeplakt in de feed?
               </span>
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-5 md:grid-cols-2">
               <ul className="space-y-2 text-sm">
                 {report.masterQuality.findings.map((f, i) => (
                   <li key={i} className="flex gap-2">
@@ -159,25 +159,25 @@ export default function Dashboard({
                   </li>
                 ))}
               </ul>
-              <div className="scroll-thin max-h-72 overflow-y-auto">
+              <div className="scroll-thin overflow-x-auto rounded-xl border border-line">
                 <table className="w-full text-xs">
-                  <thead className="text-subtle">
-                    <tr className="text-left">
-                      <th className="py-1 font-medium">veld</th>
-                      <th className="py-1 text-right font-medium" title="in feed gevuld">feed</th>
-                      <th className="py-1 text-right font-medium" title="in feed én master">uit master</th>
-                      <th className="py-1 text-right font-medium" title="in feed maar master leeg">opgeplakt</th>
-                      <th className="py-1 text-right font-medium" title="leeg in feed, wél in master">aanvulbaar</th>
+                  <thead>
+                    <tr className="border-b border-line bg-surface/60 text-left text-[11px] uppercase tracking-label text-muted">
+                      <th className="px-3 py-2 font-medium">veld</th>
+                      <th className="px-3 py-2 text-right font-medium" title="in feed gevuld">feed</th>
+                      <th className="px-3 py-2 text-right font-medium" title="in feed én master">uit master</th>
+                      <th className="px-3 py-2 text-right font-medium" title="in feed maar master leeg">opgeplakt</th>
+                      <th className="px-3 py-2 text-right font-medium" title="leeg in feed, wél in master">aanvulbaar</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {report.masterQuality.fields.map((f) => (
-                      <tr key={f.field} className="border-t border-line">
-                        <td className="py-1 text-ink">{f.field}</td>
-                        <td className="py-1 text-right tabular-nums text-subtle">{f.feedPct}%</td>
-                        <td className="py-1 text-right tabular-nums text-sterk">{f.fromMasterPct}%</td>
-                        <td className="py-1 text-right tabular-nums text-middel">{f.patchedPct}%</td>
-                        <td className="py-1 text-right tabular-nums text-hoog">{f.fixablePct}%</td>
+                    {report.masterQuality.fields.map((f, i) => (
+                      <tr key={f.field} className={i > 0 ? 'border-t border-line' : ''}>
+                        <td className="px-3 py-2 text-ink">{f.field}</td>
+                        <td className="tnum px-3 py-2 text-right text-subtle">{f.feedPct}%</td>
+                        <td className="tnum px-3 py-2 text-right text-sterk">{f.fromMasterPct}%</td>
+                        <td className="tnum px-3 py-2 text-right text-middel">{f.patchedPct}%</td>
+                        <td className="tnum px-3 py-2 text-right text-hoog">{f.fixablePct}%</td>
                       </tr>
                     ))}
                   </tbody>
@@ -189,7 +189,7 @@ export default function Dashboard({
       )}
 
       {/* Productlijst */}
-      <div className="mt-4">
+      <div className="mt-5">
         <ProductList report={report} display={display} />
       </div>
     </main>
@@ -200,24 +200,24 @@ function LabelBadge({ label, score, big }: { label: QualityLabel; score: number;
   return (
     <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 font-semibold ${LABEL_STYLE[label]} ${big ? 'text-sm' : 'text-xs'}`}>
       <span className={`h-2 w-2 rounded-full ${LABEL_DOT[label]}`} /> {label}
-      <span className="font-normal opacity-70">{score}/100</span>
+      <span className="tnum font-normal opacity-70">{score}/100</span>
     </span>
   );
 }
 
 function Tile({ title, value, suffix, sub, label, info }: { title: string; value: string; suffix?: string; sub?: string; label?: QualityLabel; info?: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-line bg-white p-4 shadow-card">
-      <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-subtle">
+    <div className="rounded-xl border border-line bg-white p-5 shadow-card">
+      <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-label text-muted">
         {title}
         {info && <InfoDot>{info}</InfoDot>}
       </p>
-      <p className="mt-1 flex items-baseline gap-1">
-        <span className="text-2xl font-semibold text-ink">{value}</span>
+      <p className="mt-2 flex items-baseline gap-1">
+        <span className="tnum text-2xl font-semibold tracking-tight text-ink">{value}</span>
         {suffix && <span className="text-sm text-subtle">{suffix}</span>}
       </p>
-      {label && <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${LABEL_STYLE[label]}`}>{label}</span>}
-      {sub && <p className="mt-1 text-xs text-subtle">{sub}</p>}
+      {label && <span className={`mt-2 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${LABEL_STYLE[label]}`}>{label}</span>}
+      {sub && <p className="mt-2 text-xs text-subtle">{sub}</p>}
     </div>
   );
 }
@@ -245,11 +245,11 @@ function InfoDot({ children }: { children: React.ReactNode }) {
 // Aparte tegel die eigen categorie én Google-mapping naast elkaar toont.
 function CategoryTile({ ownPct, googlePct, info }: { ownPct: number; googlePct: number; info?: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-line bg-white p-4 shadow-card">
-      <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-subtle">
+    <div className="rounded-xl border border-line bg-white p-5 shadow-card">
+      <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-label text-muted">
         Categorie {info && <InfoDot>{info}</InfoDot>}
       </p>
-      <div className="mt-2 space-y-2">
+      <div className="mt-3 space-y-2.5">
         <MiniStat label="Eigen categorie" pct={ownPct} />
         <MiniStat label="Google-mapping" pct={googlePct} />
       </div>
@@ -274,8 +274,8 @@ function MiniStat({ label, pct }: { label: string; pct: number }) {
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-line bg-white p-4 shadow-card">
-      <h2 className="mb-3 text-sm font-semibold text-ink">{title}</h2>
+    <div className="rounded-xl border border-line bg-white p-5 shadow-card">
+      <h2 className="mb-4 text-sm font-semibold tracking-tight text-ink">{title}</h2>
       {children}
     </div>
   );

@@ -34,8 +34,9 @@ export default function ProductList({
   return (
     <div className="rounded-xl border border-line bg-white shadow-card">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-3 border-b border-line p-4">
-        <h2 className="text-sm font-semibold text-ink">Producten</h2>
+      <div className="flex flex-wrap items-center gap-3 border-b border-line px-5 py-4">
+        <h2 className="text-sm font-semibold tracking-tight text-ink">Producten</h2>
+        <span className="tnum rounded-full bg-surface px-2 py-0.5 text-xs text-subtle">{filtered.length.toLocaleString('nl-NL')}</span>
         <div className="flex flex-wrap gap-1">
           {FILTERS.map((f) => (
             <button
@@ -49,19 +50,18 @@ export default function ProductList({
             </button>
           ))}
         </div>
-        <div className="ml-auto">
+        <div className="relative ml-auto">
+          <svg className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9096a0" strokeWidth="2" strokeLinecap="round">
+            <circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" />
+          </svg>
           <input
             value={query}
             onChange={(e) => { setQuery(e.target.value); setLimit(PAGE); }}
             placeholder="Zoek op titel of ID…"
-            className="w-56 rounded-lg border border-line px-3 py-1.5 text-sm outline-none focus:border-brand"
+            className="w-60 rounded-lg border border-line py-2 pl-9 pr-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
           />
         </div>
       </div>
-
-      <p className="px-4 pt-3 text-xs text-subtle">
-        {filtered.length.toLocaleString('nl-NL')} product(en){filter !== 'Alle' ? ` met label ${filter}` : ''}
-      </p>
 
       {/* Rijen */}
       <ul className="divide-y divide-line">
@@ -77,12 +77,12 @@ export default function ProductList({
       </ul>
 
       {shown.length < filtered.length && (
-        <div className="border-t border-line p-4 text-center">
+        <div className="border-t border-line p-5 text-center">
           <button
             onClick={() => setLimit((l) => l + PAGE)}
-            className="rounded-lg border border-line px-4 py-2 text-sm font-medium text-ink transition hover:bg-surface"
+            className="rounded-lg border border-line bg-white px-4 py-2 text-sm font-medium text-ink shadow-card transition hover:bg-surface"
           >
-            Toon meer ({filtered.length - shown.length} resterend)
+            Toon meer ({(filtered.length - shown.length).toLocaleString('nl-NL')} resterend)
           </button>
         </div>
       )}
@@ -104,11 +104,11 @@ function ProductRow({
 
   return (
     <li>
-      <button onClick={onToggle} className="flex w-full items-center gap-4 px-4 py-3 text-left transition hover:bg-surface/60">
+      <button onClick={onToggle} className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition hover:bg-surface/70">
         <Thumb src={info?.image} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium text-ink">{p.title ?? '(zonder titel)'}</p>
-          <p className="truncate text-xs text-subtle">
+          <p className="mt-0.5 truncate text-xs text-subtle">
             ID {p.id}{info?.brand ? ` · ${info.brand}` : ''}{info?.category ? ` · ${info.category}` : ''}
           </p>
         </div>
@@ -116,11 +116,11 @@ function ProductRow({
           <Pill label={p.label} score={p.score} title="Volledigheid" />
           <Pill label={cc.label} score={cc.score} title="Klantvragen" />
         </div>
-        <span className={`ml-1 shrink-0 text-subtle transition ${open ? 'rotate-180' : ''}`}>▾</span>
+        <span className={`ml-1 shrink-0 text-muted transition-transform ${open ? 'rotate-180' : ''}`}>▾</span>
       </button>
 
       {open && (
-        <div className="grid gap-4 border-t border-line bg-surface/40 px-4 py-4 md:grid-cols-2">
+        <div className="grid gap-5 border-t border-line bg-surface/50 px-5 py-5 md:grid-cols-2">
           {/* Bevindingen */}
           <div>
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-subtle">Bevindingen</h3>
@@ -169,17 +169,17 @@ function ProductRow({
 
 function Thumb({ src }: { src?: string }) {
   if (!src) {
-    return <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-surface text-subtle">—</div>;
+    return <div className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-line bg-surface text-muted">—</div>;
   }
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={src} alt="" className="h-12 w-12 shrink-0 rounded-lg border border-line object-cover" loading="lazy" />;
+  return <img src={src} alt="" className="h-11 w-11 shrink-0 rounded-lg border border-line bg-surface object-cover" loading="lazy" />;
 }
 
 function Pill({ label, score, title }: { label: QualityLabel; score: number; title: string }) {
   return (
     <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${LABEL_STYLE[label]}`} title={title}>
       <span className={`h-1.5 w-1.5 rounded-full ${LABEL_DOT[label]}`} /> {label}
-      <span className="font-normal opacity-70">{score}</span>
+      <span className="tnum font-normal opacity-70">{score}</span>
     </span>
   );
 }
