@@ -16,18 +16,25 @@ export default function ProductList({
   display: Map<string, DisplayInfo>;
 }) {
   const [filter, setFilter] = useState<QualityLabel | 'Alle'>('Alle');
+  const [category, setCategory] = useState<string>('Alle');
   const [query, setQuery] = useState('');
   const [limit, setLimit] = useState(PAGE);
   const [openId, setOpenId] = useState<string | null>(null);
+
+  const categories = useMemo(
+    () => ['Alle', ...report.categories.map((c) => c.category)],
+    [report.categories],
+  );
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return report.products.filter((p) => {
       if (filter !== 'Alle' && p.label !== filter) return false;
+      if (category !== 'Alle' && (p.category ?? '(zonder categorie)') !== category) return false;
       if (q && !(`${p.id} ${p.title ?? ''}`.toLowerCase().includes(q))) return false;
       return true;
     });
-  }, [report.products, filter, query]);
+  }, [report.products, filter, category, query]);
 
   const shown = filtered.slice(0, limit);
 
@@ -50,16 +57,30 @@ export default function ProductList({
             </button>
           ))}
         </div>
-        <div className="relative ml-auto">
-          <svg className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9096a0" strokeWidth="2" strokeLinecap="round">
-            <circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" />
-          </svg>
-          <input
-            value={query}
-            onChange={(e) => { setQuery(e.target.value); setLimit(PAGE); }}
-            placeholder="Zoek op titel of ID…"
-            className="w-60 rounded-lg border border-line py-2 pl-9 pr-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-          />
+        <div className="ml-auto flex items-center gap-2">
+          {categories.length > 2 && (
+            <select
+              value={category}
+              onChange={(e) => { setCategory(e.target.value); setLimit(PAGE); }}
+              aria-label="Filter op categorie"
+              className="rounded-lg border border-line bg-white py-2 pl-3 pr-8 text-sm text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+            >
+              {categories.map((c) => (
+                <option key={c} value={c}>{c === 'Alle' ? 'Alle categorieën' : c}</option>
+              ))}
+            </select>
+          )}
+          <div className="relative">
+            <svg className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9096a0" strokeWidth="2" strokeLinecap="round">
+              <circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" />
+            </svg>
+            <input
+              value={query}
+              onChange={(e) => { setQuery(e.target.value); setLimit(PAGE); }}
+              placeholder="Zoek op titel of ID…"
+              className="w-56 rounded-lg border border-line py-2 pl-9 pr-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+            />
+          </div>
         </div>
       </div>
 
@@ -109,7 +130,7 @@ function ProductRow({
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium text-ink">{p.title ?? '(zonder titel)'}</p>
           <p className="mt-0.5 truncate text-xs text-subtle">
-            ID {p.id}{info?.brand ? ` · ${info.brand}` : ''}{info?.category ? ` · ${info.category}` : ''}
+            ID {p.id}{info?.brand ? ` · ${info.brand}` : ''}{p.categoryPath ? ` · ${p.categoryPath}` : ''}
           </p>
         </div>
         <div className="hidden shrink-0 items-center gap-2 sm:flex">

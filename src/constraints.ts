@@ -132,7 +132,7 @@ const CONSTRAINTS: Constraint[] = [
 
 const WEIGHT: Record<Answerability, number> = { Ja: 1, Deels: 0.5, Indicatief: 0.25, Nee: 0 };
 
-function labelForCoverage(score: number): QualityLabel {
+export function labelForCoverage(score: number): QualityLabel {
   if (score >= 85) return 'Sterk';
   if (score >= 65) return 'Hoog';
   if (score >= 40) return 'Middel';

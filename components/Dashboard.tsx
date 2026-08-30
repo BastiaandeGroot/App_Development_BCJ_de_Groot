@@ -140,6 +140,42 @@ export default function Dashboard({
         </Card>
       </div>
 
+      {/* Onderverdeling per eigen categorie (zoals op de website) */}
+      {report.categories.length > 1 && (
+        <div className="mt-5">
+          <Card title="Resultaat per categorie">
+            <p className="-mt-2 mb-4 text-sm text-subtle">
+              Je eigen categorie-indeling zoals die op je website staat. Zwakste categorie bovenaan —
+              daar zit de meeste winst.
+            </p>
+            <div className="scroll-thin overflow-x-auto rounded-xl border border-line">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-line bg-surface/60 text-left text-[11px] uppercase tracking-label text-muted">
+                    <th className="px-3 py-2 font-medium">Categorie</th>
+                    <th className="px-3 py-2 text-right font-medium">Producten</th>
+                    <th className="px-3 py-2 text-right font-medium">Volledigheid</th>
+                    <th className="px-3 py-2 text-right font-medium">Klantvragen</th>
+                    <th className="px-3 py-2 text-right font-medium">Google-cat.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {report.categories.map((c, i) => (
+                    <tr key={c.category} className={i > 0 ? 'border-t border-line' : ''}>
+                      <td className="px-3 py-2.5 font-medium text-ink">{c.category}</td>
+                      <td className="tnum px-3 py-2.5 text-right text-subtle">{c.productCount.toLocaleString('nl-NL')}</td>
+                      <td className="px-3 py-2.5 text-right"><ScoreCell score={c.avgScore} label={c.label} /></td>
+                      <td className="px-3 py-2.5 text-right"><ScoreCell score={c.avgCoverage} label={c.coverageLabel} /></td>
+                      <td className="tnum px-3 py-2.5 text-right text-subtle">{c.googleCategoryPct}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </div>
+      )}
+
       {/* Masterdata-kwaliteit (alleen bij aangeleverde masterdata) */}
       {report.masterQuality && (
         <div className="mt-5">
@@ -269,6 +305,18 @@ function MiniStat({ label, pct }: { label: string; pct: number }) {
         <div className={`h-full ${color}`} style={{ width: `${pct}%` }} />
       </div>
     </div>
+  );
+}
+
+// Score + label compact in één tabelcel.
+function ScoreCell({ score, label }: { score: number; label: QualityLabel }) {
+  return (
+    <span className="inline-flex items-center justify-end gap-2">
+      <span className="tnum font-medium text-ink">{score}</span>
+      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${LABEL_STYLE[label]}`}>
+        <span className={`h-1.5 w-1.5 rounded-full ${LABEL_DOT[label]}`} />{label}
+      </span>
+    </span>
   );
 }
 

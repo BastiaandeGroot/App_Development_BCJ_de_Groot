@@ -116,6 +116,8 @@ export interface ProductReport {
   findings: Finding[];
   taxonomy: Finding[]; // bevindingen tegen de Google-taxonomiemeetlat
   constraintCoverage: ConstraintCoverage;
+  categoryPath?: string; // volledige eigen categorie (product_type)
+  category?: string; // hoofdcategorie, voor groepering
 }
 
 export interface FieldFillRate {
@@ -123,6 +125,18 @@ export interface FieldFillRate {
   filled: number;
   total: number;
   pct: number; // 0-100
+}
+
+// Onderverdeling naar de eigen categorie-indeling van de webshop (product_type),
+// zoals die op de website zichtbaar is.
+export interface CategoryBreakdown {
+  category: string; // hoofdcategorie (bv. "Gordijnstof"), of "(zonder categorie)"
+  productCount: number;
+  avgScore: number; // gemiddelde volledigheid
+  label: QualityLabel;
+  avgCoverage: number; // gemiddelde beantwoordbare klantvragen
+  coverageLabel: QualityLabel;
+  googleCategoryPct: number; // % met Google Product Category
 }
 
 // Taxonomie-audit (docs/taxonomyandconstraints.md, controles C1–C11 waar
@@ -173,6 +187,7 @@ export interface FeedReport {
   constraintCoverage: ConstraintCoverage; // feed-breed geaggregeerd
   taxonomyAudit: TaxonomyAudit; // C1–C11-subset op de feed
   masterQuality?: MasterDataQuality; // alleen als er ook masterdata is aangeleverd
+  categories: CategoryBreakdown[]; // onderverdeling naar de eigen webshop-categorieën
   labelDistribution: Record<QualityLabel, number>;
   products: ProductReport[];
 }

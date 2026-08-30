@@ -46,5 +46,16 @@ export function buildProductReport(p: NormalizedProduct): ProductReport {
     findings: sortFindings(findings),
     taxonomy: sortFindings(checkTaxonomy(p)),
     constraintCoverage: evaluateConstraints(p),
+    categoryPath: p.mainCategoryPath ?? p.categories[0]?.path,
+    category: topCategoryOf(p),
   };
+}
+
+// Hoofdcategorie uit de eigen indeling (product_type), zoals op de website:
+// "Gordijnstof > Stofsoorten > Panama Premium" -> "Gordijnstof".
+export function topCategoryOf(p: NormalizedProduct): string {
+  const path = p.mainCategoryPath ?? p.categories[0]?.path;
+  if (!path) return '(zonder categorie)';
+  const top = path.split('>')[0]?.trim();
+  return top || '(zonder categorie)';
 }

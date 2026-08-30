@@ -7,12 +7,13 @@ import type {
   Finding,
   ProductReport,
   QualityLabel,
+  CategoryBreakdown,
 } from './types.ts';
 import { BASE_FIELDS } from './checks/product.ts';
 import { buildProductReport, labelForScore, sortFindings } from './score.ts';
 import { isValidGtin } from './normalize.ts';
 import { googleCategoryOf } from './checks/taxonomy.ts';
-import { aggregateConstraints } from './constraints.ts';
+import { aggregateConstraints, labelForCoverage } from './constraints.ts';
 import { auditTaxonomy } from './checks/taxonomyAudit.ts';
 import { detectPlaceholders } from './checks/placeholders.ts';
 import { analyseDivergence } from './divergence.ts';
@@ -115,6 +116,40 @@ function summarize(
   return parts.join(' ');
 }
 
+// Onderverdeling naar de eigen categorie-indeling van de webshop (product_type).
+function computeCategories(
+  products: NormalizedProduct[],
+  reports: ProductReport[],
+): CategoryBreakdown[] {
+  const groups = new Map<string, { reports: ProductReport[]; products: NormalizedProduct[] }>();
+  reports.forEach((r, i) => {
+    const key = r.category ?? '(zonder categorie)';
+    if (!groups.has(key)) groups.set(key, { reports: [], products: [] });
+    const g = groups.get(key)!;
+    g.reports.push(r);
+    if (products[i]) g.products.push(products[i]);
+  });
+
+  const out: CategoryBreakdown[] = [];
+  for (const [category, g] of groups) {
+    const n = g.reports.length;
+    const avgScore = Math.round(g.reports.reduce((s, r) => s + r.score, 0) / n);
+    const avgCoverage = Math.round(g.reports.reduce((s, r) => s + r.constraintCoverage.score, 0) / n);
+    const withGoogle = g.products.filter((p) => !!googleCategoryOf(p)).length;
+    out.push({
+      category,
+      productCount: n,
+      avgScore,
+      label: labelForScore(avgScore, false),
+      avgCoverage,
+      coverageLabel: labelForCoverage(avgCoverage),
+      googleCategoryPct: g.products.length ? Math.round((withGoogle / g.products.length) * 100) : 0,
+    });
+  }
+  // Zwakste categorieën eerst; dat is waar de meeste winst zit.
+  return out.sort((a, b) => a.avgScore - b.avgScore || b.productCount - a.productCount);
+}
+
 // Feed-brede taxonomiebevindingen (meetlat 2, deel A).
 function computeTaxonomyFeed(products: NormalizedProduct[]): {
   findings: Finding[];
@@ -162,6 +197,10 @@ export function buildFeedReport(
     ? (() => { const q = analyseDivergence(products, master); q.findings = sortFindings(q.findings); return q; })()
     : undefined;
 
+  // Onderverdeling per eigen categorie (vóór het sorteren, zodat de index van
+  // productReports nog overeenkomt met die van products).
+  const categories = computeCategories(products, productReports);
+
   // Stabiele productvolgorde op id (rapportagestandaard §6).
   productReports.sort((a, b) => compareIds(a.id, b.id));
 
@@ -177,6 +216,7 @@ export function buildFeedReport(
     constraintCoverage,
     taxonomyAudit,
     masterQuality,
+    categories,
     labelDistribution: dist,
     products: productReports,
   };
