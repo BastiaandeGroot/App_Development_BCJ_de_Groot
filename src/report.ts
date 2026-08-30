@@ -16,6 +16,7 @@ import { aggregateConstraints } from './constraints.ts';
 import { auditTaxonomy } from './checks/taxonomyAudit.ts';
 import { detectPlaceholders } from './checks/placeholders.ts';
 import { analyseDivergence } from './divergence.ts';
+import type { TaxonomyIndex } from './taxonomyData.ts';
 
 // Versie van de rapportagestandaard (docs/reportingstandard.md).
 export const REPORT_VERSION = '1.1';
@@ -139,6 +140,7 @@ export function buildFeedReport(
   source: string,
   products: NormalizedProduct[],
   master?: NormalizedProduct[],
+  taxonomyIndex?: TaxonomyIndex,
 ): FeedReport {
   const productReports: ProductReport[] = products.map(buildProductReport);
   const total = products.length;
@@ -153,7 +155,7 @@ export function buildFeedReport(
   const overallLabel = labelForScore(avg, feedFindings.some((f) => f.severity === 'error'));
   const taxonomyRaw = computeTaxonomyFeed(products);
   const taxonomy = { ...taxonomyRaw, findings: sortFindings(taxonomyRaw.findings) };
-  const taxonomyAudit = auditTaxonomy(products);
+  const taxonomyAudit = auditTaxonomy(products, taxonomyIndex);
   taxonomyAudit.findings = sortFindings(taxonomyAudit.findings);
   const constraintCoverage = aggregateConstraints(productReports.map((r) => r.constraintCoverage));
   const masterQuality = master && master.length > 0

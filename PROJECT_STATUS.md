@@ -53,9 +53,14 @@ Laag / Middel / Hoog / Sterk en bewijs. Taal van de app: Nederlands.
   master / echte lacune / opgeplakt (schijnherstel), plus masterdata-gezondheid.
   Zichtbaar als aparte "Masterdata-kwaliteit"-kaart in de UI.
 
-### Nog te doen op deze lijn
-- Officieel Google-taxonomiebestand bundelen voor C2 (exacte validatie) en C4
-  (exacte diepte per categorie-ID).
+### Taxonomiebestand gebundeld
+- Officiële Google-taxonomie (`public/google_taxonomy_with_ids.txt`, versie
+  2021-09-21, 5595 ID's) is ingebouwd. `src/taxonomyData.ts` bouwt de index;
+  de audit doet nu C2 (exacte validatie) en C4 (exacte diepte, ook voor ID's) en
+  vertaalt ID's naar hun pad (bv. 47 = …Textiles > Fabric).
+- C7 is verfijnd: concentratie op één diepe, geldige node = passend voor een
+  gespecialiseerde webshop (info), niet automatisch "bulk-toewijzing".
+- CLI leest het bestand uit `public/`; de UI fetcht het (gecachet).
 
 ## Bewuste keuzes / afspraken
 - **Alleen constateren wat mis is** — nog géén verbetersuggesties.

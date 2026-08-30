@@ -6,11 +6,19 @@
 // De feed (Channable CSV) is primair. Een optionele master (Magento/PIM JSON)
 // wordt bijgekoppeld op SKU/EAN. Zonder argumenten draait het op de voorbeeldfeed.
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { ingest } from './intake.ts';
 import { combineSources } from './merge.ts';
 import { buildFeedReport } from './report.ts';
+import { buildTaxonomyIndex } from './taxonomyData.ts';
 import type { FeedReport, Finding } from './types.ts';
+
+// Officiële Google-taxonomie (indien gebundeld) inladen voor C2/C4.
+function loadTaxonomy() {
+  const path = 'public/google_taxonomy_with_ids.txt';
+  if (!existsSync(path)) return undefined;
+  try { return buildTaxonomyIndex(readFileSync(path, 'utf8')); } catch { return undefined; }
+}
 
 function parseArgs(argv: string[]) {
   const args = { inputs: [] as string[], json: '', combined: '', max: 5 };
@@ -115,7 +123,9 @@ function main() {
 
   const source = feed?.source ?? master?.source ?? 'onbekend';
   const masterProducts = merged.primaryKind === 'feed' && master ? master.products : undefined;
-  const report = buildFeedReport(`${source} [${merged.primaryKind}]`, merged.primary, masterProducts);
+  const taxonomy = loadTaxonomy();
+  if (taxonomy) console.log(`Taxonomie geladen: Google ${taxonomy.version} (${taxonomy.idToPath.size} categorie-ID's)`);
+  const report = buildFeedReport(`${source} [${merged.primaryKind}]`, merged.primary, masterProducts, taxonomy);
   printReport(report, args.max);
 
   if (report.masterQuality) {

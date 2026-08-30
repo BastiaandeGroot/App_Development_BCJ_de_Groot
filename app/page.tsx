@@ -4,10 +4,23 @@ import { useState, useCallback } from 'react';
 import { ingest } from '@/src/intake.ts';
 import { combineSources } from '@/src/merge.ts';
 import { buildFeedReport } from '@/src/report.ts';
+import { buildTaxonomyIndex, type TaxonomyIndex } from '@/src/taxonomyData.ts';
 import type { FeedReport } from '@/src/types.ts';
 import Dashboard, { type DisplayInfo } from '@/components/Dashboard';
 
 interface CombineInfo { matched: number; onlyFeed: number; onlyMaster: number; eanConflicts: number; }
+
+// Officiële Google-taxonomie eenmalig ophalen (voor C2/C4). Gecachet.
+let taxoPromise: Promise<TaxonomyIndex | undefined> | null = null;
+function getTaxonomy(): Promise<TaxonomyIndex | undefined> {
+  if (!taxoPromise) {
+    taxoPromise = fetch('/google_taxonomy_with_ids.txt')
+      .then((r) => (r.ok ? r.text() : null))
+      .then((t) => (t ? buildTaxonomyIndex(t) : undefined))
+      .catch(() => undefined);
+  }
+  return taxoPromise;
+}
 
 export default function Home() {
   const [report, setReport] = useState<FeedReport | null>(null);
@@ -22,7 +35,7 @@ export default function Home() {
     setBusy(true);
     setError(null);
     setFileNames(files.map((f) => f.name));
-    setTimeout(() => {
+    setTimeout(async () => {
       try {
         let feed = null as ReturnType<typeof ingest> | null;
         let master = null as ReturnType<typeof ingest> | null;
@@ -34,9 +47,10 @@ export default function Home() {
         const merged = combineSources(feed, master);
         if (merged.primary.length === 0) throw new Error('Geen producten gevonden in de aangeleverde bestanden.');
 
+        const taxonomy = await getTaxonomy();
         const src = (feed?.source ?? master?.source ?? 'onbekend') + ` [${merged.primaryKind}]`;
         const masterProducts = merged.primaryKind === 'feed' && master ? master.products : undefined;
-        const rep = buildFeedReport(src, merged.primary, masterProducts);
+        const rep = buildFeedReport(src, merged.primary, masterProducts, taxonomy);
         const map = new Map<string, DisplayInfo>();
         for (const p of merged.primary) {
           const id = p.sourceId ?? p.sku ?? '';
