@@ -1,8 +1,14 @@
 # Projectstatus — Product Data Readiness Scan
 
-_Laatst bijgewerkt: 2026-08-29_
+_Laatst bijgewerkt: 2026-08-30_
 
 Deel deze samenvatting bij het oppakken van een nieuwe sessie, vóór nieuw werk.
+
+> **Volledige eis-voor-eis status** (origineel document vs. wat er gebouwd is,
+> met ✅/⚠️/❌ en datums) staat in **`docs/implementatiestatus.md`**.
+> **C9** (categoriespecifieke verplichte attributen) is **bewust geparkeerd**
+> (2026-08-30): vereist Google's attribuut-vereisten-dataset, die niet in het
+> taxonomiebestand zit en hier niet op te halen is.
 
 ## Wat dit project is
 Een app die controleert of de productdata van een webshop (uit feed/PIM) volledig
