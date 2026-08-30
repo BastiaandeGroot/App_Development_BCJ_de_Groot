@@ -13,9 +13,12 @@ import { buildProductReport, labelForScore, sortFindings } from './score.ts';
 import { isValidGtin } from './normalize.ts';
 import { googleCategoryOf } from './checks/taxonomy.ts';
 import { aggregateConstraints } from './constraints.ts';
+import { auditTaxonomy } from './checks/taxonomyAudit.ts';
+import { detectPlaceholders } from './checks/placeholders.ts';
+import { analyseDivergence } from './divergence.ts';
 
 // Versie van de rapportagestandaard (docs/reportingstandard.md).
-export const REPORT_VERSION = '1.0';
+export const REPORT_VERSION = '1.1';
 
 // Stabiele productvolgorde op id: numeriek waar mogelijk, anders alfabetisch.
 function compareIds(a: string, b: string): number {
@@ -132,7 +135,11 @@ function computeTaxonomyFeed(products: NormalizedProduct[]): {
   return { findings, googleCategoryFillPct: pct };
 }
 
-export function buildFeedReport(source: string, products: NormalizedProduct[]): FeedReport {
+export function buildFeedReport(
+  source: string,
+  products: NormalizedProduct[],
+  master?: NormalizedProduct[],
+): FeedReport {
   const productReports: ProductReport[] = products.map(buildProductReport);
   const total = products.length;
 
@@ -141,11 +148,17 @@ export function buildFeedReport(source: string, products: NormalizedProduct[]): 
 
   const avg = total ? Math.round(productReports.reduce((s, r) => s + r.score, 0) / total) : 0;
   const fillRates = computeFillRates(products);
-  const feedFindings = sortFindings(computeFeedFindings(products));
+  // Feed-brede bevindingen + schijn-volledigheid (placeholders/defaults).
+  const feedFindings = sortFindings([...computeFeedFindings(products), ...detectPlaceholders(products)]);
   const overallLabel = labelForScore(avg, feedFindings.some((f) => f.severity === 'error'));
   const taxonomyRaw = computeTaxonomyFeed(products);
   const taxonomy = { ...taxonomyRaw, findings: sortFindings(taxonomyRaw.findings) };
+  const taxonomyAudit = auditTaxonomy(products);
+  taxonomyAudit.findings = sortFindings(taxonomyAudit.findings);
   const constraintCoverage = aggregateConstraints(productReports.map((r) => r.constraintCoverage));
+  const masterQuality = master && master.length > 0
+    ? (() => { const q = analyseDivergence(products, master); q.findings = sortFindings(q.findings); return q; })()
+    : undefined;
 
   // Stabiele productvolgorde op id (rapportagestandaard §6).
   productReports.sort((a, b) => compareIds(a.id, b.id));
@@ -160,6 +173,8 @@ export function buildFeedReport(source: string, products: NormalizedProduct[]): 
     feedFindings,
     taxonomy,
     constraintCoverage,
+    taxonomyAudit,
+    masterQuality,
     labelDistribution: dist,
     products: productReports,
   };

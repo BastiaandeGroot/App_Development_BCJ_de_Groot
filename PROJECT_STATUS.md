@@ -42,12 +42,20 @@ Laag / Middel / Hoog / Sterk en bewijs. Taal van de app: Nederlands.
   `fixtures/sample_feed.json`.
 - CLI: `node src/run.ts <feed.csv> [master.json] [--combined comb.json]`.
 
-### Nog te bouwen op deze lijn (afgesproken model)
-- Detectie van **schijn-volledigheid** in de feed (placeholder/default zoals merk =
-  winkelnaam; te brede Google-categorie / bulk-toewijzing).
-- **Feed-vs-master-divergentie** als bevindingen: per ontbrekend veld "aanvulbaar uit
-  master" vs. "echte lacune", plus een **masterdata-kwaliteitssignaal**.
-- Taxonomie-audit-checks C1–C11 (aanwezig/geldig/specifiek/spreiding).
+### Gebouwd op deze lijn (rapportversie 1.1)
+- **Schijn-volledigheid** in de feed (`src/checks/placeholders.ts`): dominante
+  default-waarde zoals merk = winkelnaam.
+- **Taxonomie-audit** (`src/checks/taxonomyAudit.ts`): C1 vulgraad, C3 notatie,
+  C5 meerdere waarden, C7 spreiding/bulk, C4 diepte (voor pad-waarden), C11
+  product_type. Exacte validatie/diepte per ID vereist nog het officiële
+  Google-taxonomiebestand (zie hieronder).
+- **Feed-vs-master-divergentie** (`src/divergence.ts`): per veld aanvulbaar uit
+  master / echte lacune / opgeplakt (schijnherstel), plus masterdata-gezondheid.
+  Zichtbaar als aparte "Masterdata-kwaliteit"-kaart in de UI.
+
+### Nog te doen op deze lijn
+- Officieel Google-taxonomiebestand bundelen voor C2 (exacte validatie) en C4
+  (exacte diepte per categorie-ID).
 
 ## Bewuste keuzes / afspraken
 - **Alleen constateren wat mis is** — nog géén verbetersuggesties.

@@ -117,5 +117,9 @@ per scan.
 
 ## 10. Changelog
 
+- **1.1** — toegevoegd (additief): `taxonomyAudit` (C1–C11-subset op de feed),
+  schijn-volledigheid/placeholder-bevindingen in `feedFindings`, en optioneel
+  `masterQuality` (feed-vs-master-divergentie + masterdata-gezondheid) wanneer
+  ook masterdata is aangeleverd.
 - **1.0** — eerste vaststelling: drie niveaus, vaste labels, JSON canoniek,
   altijd alle producten, verplichte web- en PDF-weergave.

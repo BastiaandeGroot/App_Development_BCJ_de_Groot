@@ -54,12 +54,13 @@ function printReport(r: FeedReport, maxProducts: number): void {
     }
   }
 
-  // Meetlat 2A: taxonomie.
-  console.log(`\nTaxonomie (Google Product Category bij ${r.taxonomy.googleCategoryFillPct}% van de producten):`);
-  for (const f of r.taxonomy.findings) {
+  // Meetlat 2A: taxonomie-audit (C1–C11-subset).
+  const ta = r.taxonomyAudit;
+  console.log(`\nTaxonomie-audit (Google-categorie ${ta.googleCategoryFillPct}%, notatie: ${ta.notation}, ${ta.distinctValues} verschillende waarden, top ${ta.topShare}%):`);
+  for (const f of ta.findings) {
     console.log(`  [${ICON[f.severity]}] ${f.message}${f.evidence ? `  (${f.evidence})` : ''}`);
   }
-  if (r.taxonomy.findings.length === 0) console.log('  [✓] alle producten hebben een Google-categorie');
+  if (ta.findings.length === 0) console.log('  [✓] geen taxonomie-problemen');
 
   // Meetlat 2B: constraint coverage (feed-breed).
   const cc = r.constraintCoverage;
@@ -113,8 +114,17 @@ function main() {
   }
 
   const source = feed?.source ?? master?.source ?? 'onbekend';
-  const report = buildFeedReport(`${source} [${merged.primaryKind}]`, merged.primary);
+  const masterProducts = merged.primaryKind === 'feed' && master ? master.products : undefined;
+  const report = buildFeedReport(`${source} [${merged.primaryKind}]`, merged.primary, masterProducts);
   printReport(report, args.max);
+
+  if (report.masterQuality) {
+    const mq = report.masterQuality;
+    console.log(`\nMasterdata-kwaliteit: ${mq.label} (${mq.score}/100)`);
+    for (const f of mq.findings) {
+      console.log(`  [${ICON[f.severity]}] ${f.message}${f.evidence ? `  (${f.evidence})` : ''}`);
+    }
+  }
 
   if (args.json) {
     writeFileSync(args.json, JSON.stringify(report, null, 2));

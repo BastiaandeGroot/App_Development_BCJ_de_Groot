@@ -125,6 +125,35 @@ export interface FieldFillRate {
   pct: number; // 0-100
 }
 
+// Taxonomie-audit (docs/taxonomyandconstraints.md, controles C1–C11 waar
+// deterministisch mogelijk zonder het officiële taxonomiebestand).
+export interface TaxonomyAudit {
+  findings: Finding[];
+  googleCategoryFillPct: number; // C1
+  notation: 'id' | 'path' | 'mixed' | 'none'; // C3
+  distinctValues: number; // aantal verschillende categorie-waarden
+  topShare: number; // % producten op de meest voorkomende waarde (C7)
+  productTypeFillPct: number; // C11 (eigen categoriestructuur)
+}
+
+// Masterdata-kwaliteit: hoe gezond is de bron (Magento/PIM) achter de feed,
+// en in hoeverre "repareert" de feed gaten van de master (schijnherstel).
+export interface MasterFieldDivergence {
+  field: string;
+  feedPct: number; // % in feed gevuld
+  fromMasterPct: number; // % dat in feed én master staat (echt onderbouwd)
+  patchedPct: number; // % in feed gevuld terwijl master leeg is (opgeplakt)
+  fixablePct: number; // % leeg in feed maar aanwezig in master (aanvulbaar)
+  realGapPct: number; // % leeg in feed én master (echte lacune)
+}
+
+export interface MasterDataQuality {
+  score: number; // 0-100 (masterdata-gezondheid op agent-kritieke velden)
+  label: QualityLabel;
+  fields: MasterFieldDivergence[];
+  findings: Finding[];
+}
+
 export interface FeedReport {
   reportVersion: string; // versie van de rapportagestandaard (docs/reportingstandard.md)
   source: string;
@@ -142,6 +171,8 @@ export interface FeedReport {
     googleCategoryFillPct: number; // % producten met Google Product Category
   };
   constraintCoverage: ConstraintCoverage; // feed-breed geaggregeerd
+  taxonomyAudit: TaxonomyAudit; // C1–C11-subset op de feed
+  masterQuality?: MasterDataQuality; // alleen als er ook masterdata is aangeleverd
   labelDistribution: Record<QualityLabel, number>;
   products: ProductReport[];
 }

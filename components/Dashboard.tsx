@@ -124,7 +124,7 @@ export default function Dashboard({
       {/* Bevindingen feed-breed */}
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
         <FindingsCard title="Volledigheid & identifiers" findings={report.feedFindings} empty="Geen feed-brede problemen." />
-        <FindingsCard title="Taxonomie" findings={report.taxonomy.findings} empty="Alle producten hebben een Google-categorie." />
+        <FindingsCard title="Taxonomie-audit" findings={report.taxonomyAudit.findings} empty="Geen taxonomie-problemen." />
         <Card title="Klantvragen — grootste gaten">
           {cc.topGaps.length === 0 ? (
             <p className="text-sm text-subtle">Alle constraints zijn beantwoordbaar.</p>
@@ -139,6 +139,54 @@ export default function Dashboard({
           )}
         </Card>
       </div>
+
+      {/* Masterdata-kwaliteit (alleen bij aangeleverde masterdata) */}
+      {report.masterQuality && (
+        <div className="mt-4">
+          <Card title="Masterdata-kwaliteit (bron achter de feed)">
+            <div className="mb-3 flex flex-wrap items-center gap-3">
+              <LabelBadge label={report.masterQuality.label} score={report.masterQuality.score} />
+              <span className="text-sm text-subtle">
+                Hoeveel van de feed-volledigheid komt écht uit de bron, versus is opgeplakt in de feed?
+              </span>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <ul className="space-y-2 text-sm">
+                {report.masterQuality.findings.map((f, i) => (
+                  <li key={i} className="flex gap-2">
+                    <span className={`mt-0.5 font-bold ${SEVERITY_STYLE[f.severity]}`}>{SEVERITY_ICON[f.severity]}</span>
+                    <span className="text-ink">{f.message}{f.evidence && <span className="text-subtle"> ({f.evidence})</span>}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="scroll-thin max-h-72 overflow-y-auto">
+                <table className="w-full text-xs">
+                  <thead className="text-subtle">
+                    <tr className="text-left">
+                      <th className="py-1 font-medium">veld</th>
+                      <th className="py-1 text-right font-medium" title="in feed gevuld">feed</th>
+                      <th className="py-1 text-right font-medium" title="in feed én master">uit master</th>
+                      <th className="py-1 text-right font-medium" title="in feed maar master leeg">opgeplakt</th>
+                      <th className="py-1 text-right font-medium" title="leeg in feed, wél in master">aanvulbaar</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {report.masterQuality.fields.map((f) => (
+                      <tr key={f.field} className="border-t border-line">
+                        <td className="py-1 text-ink">{f.field}</td>
+                        <td className="py-1 text-right tabular-nums text-subtle">{f.feedPct}%</td>
+                        <td className="py-1 text-right tabular-nums text-sterk">{f.fromMasterPct}%</td>
+                        <td className="py-1 text-right tabular-nums text-middel">{f.patchedPct}%</td>
+                        <td className="py-1 text-right tabular-nums text-hoog">{f.fixablePct}%</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
 
       {/* Productlijst */}
       <div className="mt-4">

@@ -35,7 +35,8 @@ export default function Home() {
         if (merged.primary.length === 0) throw new Error('Geen producten gevonden in de aangeleverde bestanden.');
 
         const src = (feed?.source ?? master?.source ?? 'onbekend') + ` [${merged.primaryKind}]`;
-        const rep = buildFeedReport(src, merged.primary);
+        const masterProducts = merged.primaryKind === 'feed' && master ? master.products : undefined;
+        const rep = buildFeedReport(src, merged.primary, masterProducts);
         const map = new Map<string, DisplayInfo>();
         for (const p of merged.primary) {
           const id = p.sourceId ?? p.sku ?? '';
