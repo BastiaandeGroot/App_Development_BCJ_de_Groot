@@ -92,6 +92,37 @@ De data-kolom is de werkdag waarop het (grotendeels) is verwerkt in deze sessie.
 
 ---
 
+## Waarom onderdelen ⚠️ deels of ❌ niet zijn
+
+### Meetlat 1 — Data quality checks
+- **Identifiers (⚠️):** "merk + MPN-combinatie" is nog niet als aparte check gebouwd — klein, lage prioriteit (in deze feed is `mpn` = SKU en `merk` vaak de winkelnaam, dus merk+MPN is hier tóch geen betrouwbare identifier).
+- **Categorie-/agent-attributen (⚠️):** vereist een curated regelset per categorie óf de AI-laag om te weten wélke attributen per categorie relevant zijn; nu bewust generiek (materiaal/kleur/maat/gewicht).
+- **Attribuutkwaliteit (⚠️):** eenheden- en waarde-consistentie (bv. gram vs. kg, `L` vs `Large` vs `52`) vragen attribuut-woordenboeken/regels — uitgesteld wegens beperkte winst op deze feed. Variantniveau: n.v.t. (geen varianten).
+- **Variants (⚠️):** **datalimiet** — de feed bevat uitsluitend `simple` producten; er valt niets te toetsen.
+- **Machineleesbaarheid (⚠️):** de paginaniveau-signalen (JSON-LD, data-alleen-na-JavaScript, prijs-als-afbeelding, structured markup) vereisen de **live productpagina**, niet de feed.
+- **Feed-site-consistentie (❌):** vereist de **live site als tweede bron**; niet aangeleverd. Als verwant alternatief is feed-vs-master gebouwd.
+
+### Meetlat 2 — Taxonomie en constraint coverage
+- **Twijfel expliciet rapporteren (⚠️):** een **semantisch onzekerheidsoordeel** (is dit de juiste node?) → AI-laag.
+- **productdata↔site / feed↔site (❌):** vereist de **live site**.
+- **Varianten onder zelfde categorie (⚠️):** **datalimiet** — geen varianten in de feed.
+- **Verkeerde vertical (⚠️):** semantisch oordeel (geldige maar verkeerde tak) → AI-laag (nabij C8).
+- **Intentanalyse (⚠️):** categorie-afhankelijk; vereist **echte data** (zoeklogs/reviews) of AI.
+- **Klantvragen verzamelen/genereren (⚠️):** echte bron ontbreekt; generatie "zoals een consument vraagt" = AI-laag → nu indicatief/generiek.
+- **Constraint decomposition (⚠️):** hangt af van echte/gegenereerde vragen; nu een vaste constraint-set als stand-in.
+- **Rapportage-kolom "Verbeteractie" (⚠️):** **bewust geparkeerd** (afspraak: eerst zonder verbetersuggesties).
+- **C8 (❌):** semantische steekproef → AI-laag.
+- **C9 (❌):** vereist **Google's attribuut-vereisten-dataset**, die niet in het taxonomiebestand zit en hier niet op te halen is.
+- **C10 (⚠️):** alleen versiebewustzijn; de volledige check vereist het **actuele** taxonomiebestand (directe download geblokkeerd).
+
+### Onderliggende oorzaken (beide meetlatten)
+1. **Semantisch oordeel → AI-laag** (twijfel, verkeerde vertical, intentanalyse, klantvraag-generatie, decomposition, C8).
+2. **Live site als tweede bron** (machineleesbaarheid op paginaniveau, feed-site-consistentie).
+3. **Ontbrekende referentie-/klantdata** (actueel taxonomiebestand → C10; attribuut-dataset → C9; zoeklogs/reviews → klantvragen).
+4. **Datalimiet in deze feed** (geen varianten).
+5. **Bewuste afspraak** (verbeteracties).
+6. **Klein / nog niet gebouwd** (merk+MPN-combinatie).
+
 ## Openstaand (bewust geparkeerd)
 - Verbetersuggesties per bevinding (met input opdrachtgever)
 - AI-laag: categorie-specifieke klantvragen (C8), semantisch categorieoordeel, subjectief kwaliteitsoordeel
